@@ -9,7 +9,6 @@ import type {
   FillResponse,
   VerifyResponse,
   VerifyClaim,
-  CompareConflict,
 } from "./types";
 import type { LedgerResult } from "./ledger";
 import type { ButtonVerdict } from "./fixtures";
@@ -119,7 +118,7 @@ export function decidePay(
   ledger?: LedgerResult
 ): PolicyDecision {
   let totalCredits = 0;
-  const namedChecks: Array<{ name: string; call?: Call<any> }> = [
+  const namedChecks: Array<{ name: string; call?: Call<unknown> }> = [
     { name: "Guard", call: checks.guard },
     { name: "Protect", call: checks.protect },
     { name: "Invoice Extract", call: checks.invoiceExtract },

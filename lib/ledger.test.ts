@@ -1,9 +1,9 @@
 // lib/ledger.test.ts
 import { describe, it, expect } from "vitest";
-import { FIXTURES, getFixture } from "./fixtures";
+import { getFixture } from "./fixtures";
 import { buildLedger, parseUsNumber } from "./ledger";
-import { find, codePointLength } from "./spans";
-import type { ExtractResponse } from "./types";
+import { find } from "./spans";
+import type { ExtractResponse, ExtractFieldItem } from "./types";
 
 /**
  * Helper to build an exact ExtractResponse for a fixture invoice
@@ -23,7 +23,7 @@ function extractFixtureInvoice(text: string): ExtractResponse {
   // Lines
   const lineRegex =
     /\|\s*([A-Z0-9-]+)\s*\|\s*([^|]+?)\s*\|\s*(\d+)\s*\|\s*([\d,.]+)\s*\|\s*([\d,.]+)\s*\|/g;
-  const items: any[] = [];
+  const items: ExtractFieldItem[] = [];
   let match: RegExpExecArray | null;
 
   while ((match = lineRegex.exec(text)) !== null) {
@@ -128,7 +128,7 @@ function extractFixturePo(text: string): ExtractResponse {
 
   const lineRegex =
     /\|\s*([A-Z0-9-]+)\s*\|\s*([^|]+?)\s*\|\s*(\d+)\s*\|\s*([\d,.]+)\s*\|/g;
-  const items: any[] = [];
+  const items: ExtractFieldItem[] = [];
   let match: RegExpExecArray | null;
 
   while ((match = lineRegex.exec(text)) !== null) {
@@ -192,7 +192,7 @@ function extractFixtureReceipt(text: string): ExtractResponse {
   // | Item Code | Description | Delivered | Refused | Accepted |
   const lineRegex =
     /\|\s*([A-Z0-9-]+)\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|\s*(\d+)\s*\|/g;
-  const items: any[] = [];
+  const items: ExtractFieldItem[] = [];
   let match: RegExpExecArray | null;
 
   while ((match = lineRegex.exec(text)) !== null) {

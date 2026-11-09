@@ -7,9 +7,9 @@ import { FIXTURES } from "@/lib/fixtures";
 export const maxDuration = 300;
 
 export async function POST(req: Request) {
-  let body: any;
+  let body: Record<string, unknown> | null = null;
   try {
-    body = await req.json();
+    body = (await req.json()) as Record<string, unknown>;
   } catch {
     return NextResponse.json(
       {

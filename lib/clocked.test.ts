@@ -1,6 +1,6 @@
 // lib/clocked.test.ts
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { callClocked, globalClockedQueue } from "./clocked";
+import { callClocked } from "./clocked";
 
 describe("lib/clocked", () => {
   const originalFetch = globalThis.fetch;

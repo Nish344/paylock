@@ -3,6 +3,7 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 import { getFixture, FIXTURES } from "../lib/fixtures";
 import { runPaylock } from "../lib/paylock";
+import type { ClockedMode } from "../lib/clocked";
 
 async function main() {
   const caseId = process.argv[2] || "dock-count";
@@ -23,7 +24,7 @@ async function main() {
 
   const startTime = Date.now();
   const result = await runPaylock(fixture.invoice, fixture.po, fixture.receipt, {
-    mode: (process.env.CLOCKED_MODE as any) || "live",
+    mode: (process.env.CLOCKED_MODE as ClockedMode) || "live",
   });
   const elapsedSec = ((Date.now() - startTime) / 1000).toFixed(1);
 

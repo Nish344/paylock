@@ -4,7 +4,6 @@ import { find, mask, codePointLength } from "./spans";
 import { buildLedger, type LedgerResult } from "./ledger";
 import { decidePay, invoiceConflicts, type ChecksBundle, type PolicyDecision } from "./policy";
 import type {
-  Call,
   GuardResponse,
   ProtectResponse,
   ExtractResponse,
@@ -333,7 +332,7 @@ export async function runPaylock(
         if (typeof item === "string" && item.trim()) {
           rawClaims.push(item.trim());
         } else if (item && typeof item === "object" && "value" in item) {
-          rawClaims.push(String((item as any).value).trim());
+          rawClaims.push(String((item as { value: unknown }).value).trim());
         }
       }
     }

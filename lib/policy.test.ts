@@ -1,6 +1,6 @@
 // lib/policy.test.ts
 import { describe, it, expect } from "vitest";
-import { decidePay, unsupported, invoiceConflicts, type ChecksBundle } from "./policy";
+import { decidePay, type ChecksBundle } from "./policy";
 import type { LedgerResult } from "./ledger";
 
 function makeCleanChecks(): ChecksBundle {

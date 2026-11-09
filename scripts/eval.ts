@@ -1,9 +1,10 @@
 // scripts/eval.ts
 import { FIXTURES } from "../lib/fixtures";
 import { runPaylock } from "../lib/paylock";
+import type { ClockedMode } from "../lib/clocked";
 
 async function main() {
-  const mode = (process.env.CLOCKED_MODE as any) || undefined;
+  const mode = process.env.CLOCKED_MODE as ClockedMode | undefined;
   console.log(`\n======================================================`);
   console.log(`Running Paylock Evaluation on 8 Synthetic Cases`);
   console.log(`Mode: ${mode || (process.env.CLOCKED_API_KEY ? "live" : "replay")}`);
