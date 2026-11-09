@@ -1,0 +1,38 @@
+{
+  "endpoint": "decide",
+  "payload": {
+    "state": "INVOICE (from the vendor)\nCoastline Seafood\nPortland ME\nINVOICE: CSF-90417\nDate: 16 Oct 2026\nBilled To: Harbor Street Kitchens\nCommissary, 410 Harbor St, Portland ME 04101\nPO Reference: PO-24152\n\n| Item Code | Description | Qty | Unit Price | Amount |\n| CS-SAL-10 | Atlantic salmon fillets, 10 lb | 12 | 118.00 | 1,416.00 |\n\nSubtotal: USD 1,416.00\nTax: 0.00\nTotal due: USD 1,416.00\nRemit to account ████████████, routing █████████.\n██████████████████████████████████████████████████████████████████████████████████ ██████████████████████████████████████████████████████████████████████████████████████████████████\n\nPURCHASE ORDER\nHarbor Street Kitchens\nCommissary, 410 Harbor St, Portland ME 04101\nPURCHASE ORDER: PO-24152\nDate: 11 Oct 2026\nVendor: Coastline Seafood, Portland ME\n\n| Item Code | Description | Qty | Unit Price |\n| CS-SAL-10 | Atlantic salmon fillets, 10 lb | 12 | 118.00 |\n\nAuthorized by: E. Davis\n\nRECEIVING NOTE\nHarbor Street Kitchens\nCommissary, 410 Harbor St, Portland ME 04101\nRECEIVING NOTE: RN-8850\nPO Reference: PO-24152\nDelivery Date: 15 Oct 2026\nVendor: Coastline Seafood\nDock Counter: M. Ruiz\n\n| Item Code | Description | Delivered | Refused | Accepted |\n| CS-SAL-10 | Atlantic salmon fillets, 10 lb | 12 | 0 | 12 |\n\nCondition on arrival: Packed on ice at 34°F.",
+    "instructions": "You are an accounts-payable reviewer reading the vendor's invoice against the buyer's PO and receiving note; █ marks removed text.",
+    "questions": {
+      "recommendation": {
+        "type": "choice",
+        "instructions": "Recommend PAY, HOLD, or REJECT for this invoice.",
+        "criteria": {
+          "PAY": "The invoice is for goods on this PO that the receiving note shows were accepted, at the agreed prices.",
+          "HOLD": "Something has to be resolved with a person or the vendor before paying.",
+          "REJECT": "The invoice isn't for this buyer or this PO, or bills only goods that were never ordered."
+        }
+      }
+    }
+  },
+  "data": {
+    "model": "clocked-1.0",
+    "answers": {
+      "recommendation": {
+        "type": "choice",
+        "choice": "PAY",
+        "probabilities": {
+          "PAY": 0.9961,
+          "HOLD": 0.0024,
+          "REJECT": 0.0015
+        },
+        "confidence": 0.9941
+      }
+    },
+    "usage": {
+      "input_tokens": 570,
+      "output_tokens": 3
+    }
+  },
+  "credits": 1
+}

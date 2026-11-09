@@ -1,0 +1,171 @@
+{
+  "endpoint": "extract",
+  "payload": {
+    "text": "Harbor Street Kitchens\nCommissary, 410 Harbor St, Portland ME 04101\nRECEIVING NOTE: RN-8841\nPO Reference: PO-24129\nDelivery Date: 14 Oct 2026\nVendor: Copperleaf Dry Goods\nDock Counter: M. Ruiz\n\n| Item Code | Description | Delivered | Refused | Accepted |\n| CL-FLR-50 | All-purpose flour, 50 lb | 30 | 0 | 30 |\n| CL-RCE-25 | Jasmine rice, 25 lb | 20 | 0 | 20 |\n\nCondition on arrival: Dry and undamaged.",
+    "fields": {
+      "po_reference": "purchase order number",
+      "lines": {
+        "description": "receiving note lines",
+        "list": true,
+        "row_anchor": "item_code",
+        "max_items": 20,
+        "fields": {
+          "item_code": "item code or product identifier",
+          "accepted": "quantity accepted into stock, after refused or returned units"
+        }
+      }
+    }
+  },
+  "data": {
+    "model": "clocked-1.0",
+    "fields": {
+      "po_reference": {
+        "value": "PO-24129",
+        "start": 106,
+        "end": 114,
+        "confidence": 0.9999999997856188,
+        "p_verify": 0.9999999997856188
+      },
+      "lines": {
+        "value": [
+          {
+            "item_code": "CL-FLR-50",
+            "accepted": "30"
+          },
+          {
+            "item_code": "CL-RCE-25",
+            "accepted": "20"
+          }
+        ],
+        "items": [
+          {
+            "start": 196,
+            "end": 312,
+            "fields": {
+              "item_code": {
+                "value": "CL-FLR-50",
+                "start": 257,
+                "end": 266,
+                "confidence": 0.99999999950026,
+                "p_verify": 0.99999999950026
+              },
+              "accepted": {
+                "value": "30",
+                "start": 305,
+                "end": 307,
+                "p_start": 1,
+                "p_close": 1,
+                "p_point": 0.879,
+                "p_verify": 1,
+                "alternatives": [
+                  {
+                    "value": "30",
+                    "start": 296,
+                    "p_verify": 1
+                  }
+                ],
+                "confidence": 1
+              }
+            }
+          },
+          {
+            "start": 312,
+            "end": 359,
+            "fields": {
+              "item_code": {
+                "value": "CL-RCE-25",
+                "start": 312,
+                "end": 321,
+                "confidence": 0.9999999995085007,
+                "p_verify": 0.9999999995085007
+              },
+              "accepted": {
+                "value": "20",
+                "start": 355,
+                "end": 357,
+                "p_start": 1,
+                "p_close": 1,
+                "p_point": 0.772,
+                "p_verify": 1,
+                "alternatives": [
+                  {
+                    "value": "20",
+                    "start": 346,
+                    "p_verify": 1
+                  },
+                  {
+                    "value": "25 lb",
+                    "start": 338,
+                    "p_verify": 0
+                  }
+                ],
+                "confidence": 1
+              }
+            }
+          }
+        ],
+        "source": "extracted",
+        "row_anchor": "item_code"
+      }
+    },
+    "timing": {
+      "read_ms": 203,
+      "forwards": {
+        "fields": [
+          9,
+          0
+        ],
+        "records": [
+          8,
+          0
+        ]
+      },
+      "stages": {
+        "fields": {
+          "reader": "recognition",
+          "doc": 0,
+          "branches": 0,
+          "generate": 105,
+          "locate": 0,
+          "verify": 14,
+          "assemble": 0
+        },
+        "cells": {
+          "doc": 0,
+          "point": 13,
+          "resolve": 11,
+          "extend": 0,
+          "contest": 18,
+          "lists": 0,
+          "verify": 0
+        }
+      },
+      "records": {
+        "variant": "A",
+        "listing_ms": 0,
+        "starts_ms": 39,
+        "cells_ms": 43,
+        "forwards": {
+          "listing": [
+            0,
+            0
+          ],
+          "starts": [
+            4,
+            0
+          ],
+          "cells": [
+            4,
+            0
+          ]
+        },
+        "records": 2,
+        "cells": 2,
+        "explicit": 0
+      },
+      "total_ms": 203,
+      "server_ms": 359
+    }
+  },
+  "credits": 9
+}

@@ -1,0 +1,198 @@
+{
+  "endpoint": "extract",
+  "payload": {
+    "text": "Harbor Street Kitchens\nCommissary, 410 Harbor St, Portland ME 04101\nPURCHASE ORDER: PO-24117\nDate: 08 Oct 2026\nVendor: Bayline Produce, 100 Commercial St, Portland ME\n\n| Item Code | Description | Qty | Unit Price |\n| BP-TOM-25 | Roma tomatoes, 25 lb case | 500 | 11.90 |\n| BP-ONY-50 | Yellow onions, 50 lb sack | 40 | 18.25 |\n\nAuthorized by: E. Davis",
+    "fields": {
+      "po_number": "purchase order number",
+      "lines": {
+        "description": "purchase order lines",
+        "list": true,
+        "row_anchor": "item_code",
+        "max_items": 20,
+        "fields": {
+          "item_code": "item code or product identifier",
+          "description": "item description",
+          "quantity": "quantity ordered",
+          "unit_price": "agreed unit price"
+        }
+      }
+    }
+  },
+  "data": {
+    "model": "clocked-1.0",
+    "fields": {
+      "po_number": {
+        "value": "PO-24117",
+        "start": 84,
+        "end": 92,
+        "confidence": 0.9999999997741869,
+        "p_verify": 0.9999999997741869
+      },
+      "lines": {
+        "value": [
+          {
+            "item_code": "BP-TOM-25",
+            "description": "Roma tomatoes, 25 lb case",
+            "quantity": "500",
+            "unit_price": "11.90"
+          },
+          {
+            "item_code": "BP-ONY-50",
+            "description": "Yellow onions, 50 lb sack",
+            "quantity": "40",
+            "unit_price": "18.25"
+          }
+        ],
+        "items": [
+          {
+            "start": 170,
+            "end": 273,
+            "fields": {
+              "item_code": {
+                "value": "BP-TOM-25",
+                "start": 217,
+                "end": 226,
+                "confidence": 0.9999999995592472,
+                "p_verify": 0.9999999995592472
+              },
+              "description": {
+                "value": "Roma tomatoes, 25 lb case",
+                "start": 229,
+                "end": 254,
+                "p_start": 1,
+                "p_close": 1,
+                "p_point": 0.5,
+                "p_verify": 1,
+                "confidence": 1
+              },
+              "quantity": {
+                "value": "500",
+                "start": 257,
+                "end": 260,
+                "p_start": 1,
+                "p_close": 1,
+                "p_point": 1,
+                "p_verify": 1,
+                "confidence": 1
+              },
+              "unit_price": {
+                "value": "11.90",
+                "start": 263,
+                "end": 268,
+                "p_start": 1,
+                "p_close": 1,
+                "p_point": 1,
+                "p_verify": 1,
+                "confidence": 1
+              }
+            }
+          },
+          {
+            "start": 273,
+            "end": 325,
+            "fields": {
+              "item_code": {
+                "value": "BP-ONY-50",
+                "start": 273,
+                "end": 282,
+                "confidence": 0.9999999992122259,
+                "p_verify": 0.9999999992122259
+              },
+              "description": {
+                "value": "Yellow onions, 50 lb sack",
+                "start": 285,
+                "end": 310,
+                "p_start": 1,
+                "p_close": 1,
+                "p_point": 0.5,
+                "p_verify": 1,
+                "confidence": 1
+              },
+              "quantity": {
+                "value": "40",
+                "start": 313,
+                "end": 315,
+                "p_start": 1,
+                "p_close": 1,
+                "p_point": 1,
+                "p_verify": 1,
+                "confidence": 1
+              },
+              "unit_price": {
+                "value": "18.25",
+                "start": 318,
+                "end": 323,
+                "p_start": 1,
+                "p_close": 1,
+                "p_point": 1,
+                "p_verify": 1,
+                "confidence": 1
+              }
+            }
+          }
+        ],
+        "source": "extracted",
+        "row_anchor": "item_code"
+      }
+    },
+    "timing": {
+      "read_ms": 231,
+      "forwards": {
+        "fields": [
+          10,
+          0
+        ],
+        "records": [
+          8,
+          0
+        ]
+      },
+      "stages": {
+        "fields": {
+          "reader": "recognition",
+          "doc": 0,
+          "branches": 1,
+          "generate": 120,
+          "locate": 0,
+          "verify": 13,
+          "assemble": 0
+        },
+        "cells": {
+          "doc": 0,
+          "point": 20,
+          "resolve": 10,
+          "extend": 0,
+          "contest": 18,
+          "lists": 0,
+          "verify": 0
+        }
+      },
+      "records": {
+        "variant": "A",
+        "listing_ms": 0,
+        "starts_ms": 46,
+        "cells_ms": 49,
+        "forwards": {
+          "listing": [
+            0,
+            0
+          ],
+          "starts": [
+            4,
+            0
+          ],
+          "cells": [
+            4,
+            0
+          ]
+        },
+        "records": 2,
+        "cells": 6,
+        "explicit": 0
+      },
+      "total_ms": 231,
+      "server_ms": 252
+    }
+  },
+  "credits": 10
+}

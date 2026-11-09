@@ -1,0 +1,100 @@
+{
+  "endpoint": "grounding",
+  "payload": {
+    "documents": [
+      {
+        "id": "invoice",
+        "text": "Northfield Dairy\nAugusta ME\nINVOICE: ND-7714\nDate: 15 Oct 2026\nBilled To: Harbor Street Kitchens\nCommissary, 410 Harbor St, Portland ME 04101\nPO Reference: PO-24126\n\n| Item Code | Description | Qty | Unit Price | Amount |\n| NF-CRM-1G | Heavy cream, 1 gal | 60 | 15.10 | 906.00 |\n| NF-BUT-36 | Salted butter, 36 lb case | 10 | 112.00 | 1,120.00 |\n\nSubtotal: USD 2,026.00\nTax: 0.00\nTotal due: USD 2,026.00\nNote: Cream pricing reflects the October dairy surcharge agreed with your buyer.\nThank you for choosing Northfield Dairy."
+      },
+      {
+        "id": "purchase-order",
+        "text": "Harbor Street Kitchens\nCommissary, 410 Harbor St, Portland ME 04101\nPURCHASE ORDER: PO-24126\nDate: 09 Oct 2026\nVendor: Northfield Dairy, Augusta ME\n\n| Item Code | Description | Qty | Unit Price |\n| NF-CRM-1G | Heavy cream, 1 gal | 60 | 14.20 |\n| NF-BUT-36 | Salted butter, 36 lb case | 10 | 112.00 |\n\nAuthorized by: E. Davis"
+      },
+      {
+        "id": "receiving-note",
+        "text": "Harbor Street Kitchens\nCommissary, 410 Harbor St, Portland ME 04101\nRECEIVING NOTE: RN-8838\nPO Reference: PO-24126\nDelivery Date: 13 Oct 2026\nVendor: Northfield Dairy\nDock Counter: M. Ruiz\n\n| Item Code | Description | Delivered | Refused | Accepted |\n| NF-CRM-1G | Heavy cream, 1 gal | 60 | 0 | 60 |\n| NF-BUT-36 | Salted butter, 36 lb case | 10 | 0 | 10 |\n\nCondition on arrival: Temperature verified 38°F."
+      },
+      {
+        "id": "paylock-ledger",
+        "text": "LEDGER FINDINGS:\n- Heavy cream, 1 gal: billed at $15.10 each, the PO agreed $14.20.\n\nDOCUMENT CONFLICTS:\n- None."
+      }
+    ],
+    "answer": "The ledger findings state that heavy cream, 1 gal was billed at $15.10 each, while the PO agreed $14.20",
+    "evidence": "all",
+    "instructions": "Check a note for an accounts-payable clerk against the invoice, the PO, the receiving note and the ledger findings. A sentence reporting what the invoice states is supported if the invoice says it. Statements that the invoice matches or that there are no conflicts are supported if the ledger findings report no discrepancies."
+  },
+  "data": {
+    "model": "clocked-1.0",
+    "grounded": 0.9965,
+    "ungrounded": 0.0035,
+    "verdict": "grounded",
+    "threshold": 0.5,
+    "instructions_used": "custom",
+    "documents": [
+      {
+        "id": "paylock-ledger",
+        "share": 0.9975,
+        "share_of_answer": 0.994,
+        "claims": [
+          0
+        ]
+      },
+      {
+        "id": "purchase-order",
+        "share": 0.0011,
+        "share_of_answer": 0.0011,
+        "claims": []
+      },
+      {
+        "id": "invoice",
+        "share": 0.0007,
+        "share_of_answer": 0.0007,
+        "claims": []
+      },
+      {
+        "id": "receiving-note",
+        "share": 0.0007,
+        "share_of_answer": 0.0007,
+        "claims": []
+      }
+    ],
+    "claims": [
+      {
+        "claim": "The ledger findings state that heavy cream, 1 gal was billed at $15.10 each, while the PO agreed $14.20",
+        "kind": "claim",
+        "counted": true,
+        "weight": 1,
+        "supported": 0.9965,
+        "contradicted": 0.0011,
+        "not_stated": 0.0013,
+        "not_a_claim": 0.0011,
+        "verdict": "supported",
+        "sources": {
+          "invoice": 0.0007,
+          "purchase-order": 0.0011,
+          "receiving-note": 0.0007,
+          "paylock-ledger": 0.9975
+        },
+        "source": "paylock-ledger",
+        "evidence": {
+          "document": "paylock-ledger",
+          "quote": "Heavy cream, 1 gal: billed at $15.10 each, the PO agreed $14.20.",
+          "start": 19,
+          "end": 83,
+          "confidence": 1
+        }
+      }
+    ],
+    "unsupported_claims": [],
+    "not_claims": [],
+    "weakest_claim": {
+      "index": 0,
+      "supported": 0.9965
+    },
+    "timing": {
+      "read_ms": 88,
+      "total_ms": 90
+    }
+  },
+  "credits": 3
+}

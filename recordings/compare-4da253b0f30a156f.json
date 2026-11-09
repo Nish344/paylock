@@ -1,0 +1,142 @@
+{
+  "endpoint": "compare",
+  "payload": {
+    "documents": [
+      {
+        "id": "invoice",
+        "text": "Granite Paper Supply\nManchester NH\nINVOICE: GPS-11820\nDate: 15 Oct 2026\nBilled To: Harbour Lane Bistro, 12 Harbour Lane, Portland ME\nPO Reference: PO-90012\n\n| Item Code | Description | Qty | Unit Price | Amount |\n| GP-NAP-50 | Beverage napkins, 5000 ct | 8 | 42.50 | 340.00 |\n| GP-CUP-16 | Hot cups, 16 oz, 1000 ct | 4 | 70.00 | 280.00 |\n\nSubtotal: USD 620.00\nTax: 0.00\nTotal due: USD 620.00\nPayment due upon receipt."
+      },
+      {
+        "id": "purchase-order",
+        "text": "Harbor Street Kitchens\nCommissary, 410 Harbor St, Portland ME 04101\nPURCHASE ORDER: PO-24117\nDate: 08 Oct 2026\nVendor: Bayline Produce, 100 Commercial St, Portland ME\n\n| Item Code | Description | Qty | Unit Price |\n| BP-TOM-25 | Roma tomatoes, 25 lb case | 500 | 11.90 |\n| BP-ONY-50 | Yellow onions, 50 lb sack | 40 | 18.25 |\n\nAuthorized by: E. Davis"
+      },
+      {
+        "id": "receiving-note",
+        "text": "Harbor Street Kitchens\nCommissary, 410 Harbor St, Portland ME 04101\nRECEIVING NOTE: RN-8831\nPO Reference: PO-24117\nDelivery Date: 12 Oct 2026\nVendor: Bayline Produce\nDock Counter: M. Ruiz\n\n| Item Code | Description | Delivered | Refused | Accepted |\n| BP-TOM-25 | Roma tomatoes, 25 lb case | 500 | 0 | 500 |\n| BP-ONY-50 | Yellow onions, 50 lb sack | 40 | 0 | 40 |\n\nCondition on arrival: Inspected at dock."
+      }
+    ],
+    "evidence": "flagged",
+    "instructions": "The three documents describe one order. Report a conflict only about what an item is (product, variety, grade, brand, pack size or count, unit of measure) or who the buyer or vendor is. Ignore quantities, prices, amounts, totals, tax, dates, document numbers and wording, because Paylock checks numbers with arithmetic. █ is redacted text."
+  },
+  "data": {
+    "model": "clocked-1.0",
+    "verdict": "overlaps",
+    "threshold": 0.5,
+    "instructions_used": "custom",
+    "evidence": "flagged",
+    "documents": [
+      {
+        "id": "invoice",
+        "duplicates": [],
+        "overlaps": [],
+        "conflicts": []
+      },
+      {
+        "id": "purchase-order",
+        "duplicates": [],
+        "overlaps": [
+          "receiving-note"
+        ],
+        "conflicts": []
+      },
+      {
+        "id": "receiving-note",
+        "duplicates": [],
+        "overlaps": [
+          "purchase-order"
+        ],
+        "conflicts": []
+      }
+    ],
+    "pairs": [
+      {
+        "a": "invoice",
+        "b": "purchase-order",
+        "relation": "unrelated",
+        "related": 0.0072,
+        "probabilities": {
+          "same": 0.0032,
+          "overlapping": 0.002,
+          "conflicting": 0.0021,
+          "unrelated": 0.9928
+        },
+        "duplicates": [],
+        "conflicts": []
+      },
+      {
+        "a": "invoice",
+        "b": "receiving-note",
+        "relation": "unrelated",
+        "related": 0.0068,
+        "probabilities": {
+          "same": 0.0032,
+          "overlapping": 0.002,
+          "conflicting": 0.0016,
+          "unrelated": 0.9932
+        },
+        "duplicates": [],
+        "conflicts": []
+      },
+      {
+        "a": "purchase-order",
+        "b": "receiving-note",
+        "relation": "overlapping",
+        "related": 0.9939,
+        "probabilities": {
+          "same": 0.062,
+          "overlapping": 0.9219,
+          "conflicting": 0.0101,
+          "unrelated": 0.0061
+        },
+        "duplicates": [
+          {
+            "kind": "restated",
+            "kinds": {
+              "verbatim": 0.0138,
+              "restated": 0.8901,
+              "elaborated": 0.0454,
+              "different": 0.0507
+            },
+            "confidence": 0.9493,
+            "a": {
+              "document": "purchase-order",
+              "quote": "Harbor Street Kitchens",
+              "start": 0,
+              "end": 22,
+              "confidence": 1
+            },
+            "b": {
+              "document": "receiving-note",
+              "quote": "Harbor Street Kitchens\nCommissary, 410 Harbor St, Portland ME 04101\nRECEIVING NOTE: RN-8831\nPO Reference: PO-24117\nDelivery Date: 12 Oct 2026\nVendor: Bayline Produce\nDock Counter: M. Ruiz\n\n| Item Code | Description | Delivered | Refused | Accepted |\n| BP-TOM-25 | Roma tomatoes, 25 lb case | 500 | 0 | 500 |\n| BP-ONY-50 | Yellow onions, 50 lb sack | 40 | 0 | 40 |\n\nCondition on arrival: Inspected at dock.",
+              "start": 0,
+              "end": 405,
+              "confidence": 1
+            }
+          }
+        ],
+        "conflicts": []
+      }
+    ],
+    "duplicates": [],
+    "overlaps": [
+      2
+    ],
+    "conflicts": [],
+    "related_pairs": [
+      2
+    ],
+    "stages": {
+      "pairs_reread": 0,
+      "pairs_ms": 15,
+      "passage_reads": 1,
+      "passages_ms": 23,
+      "passages": 1,
+      "counterparts_ms": 74
+    },
+    "timing": {
+      "read_ms": 112,
+      "total_ms": 114
+    }
+  },
+  "credits": 5
+}

@@ -1,0 +1,171 @@
+{
+  "endpoint": "extract",
+  "payload": {
+    "text": "Harbor Street Kitchens\nCommissary, 410 Harbor St, Portland ME 04101\nRECEIVING NOTE: RN-8846\nPO Reference: PO-24133\nDelivery Date: 14 Oct 2026\nVendor: Bayline Produce\nDock Counter: M. Ruiz\n\n| Item Code | Description | Delivered | Refused | Accepted |\n| BP-TOM-25 | Roma tomatoes, 25 lb case | 500 | 80 (arrived at 47°F, limit 41°F, sent back with the driver) | 420 |\n| BP-ONY-50 | Yellow onions, 50 lb sack | 40 | 0 | 40 |\n\nCondition on arrival: Inspected at dock.",
+    "fields": {
+      "po_reference": "purchase order number",
+      "lines": {
+        "description": "receiving note lines",
+        "list": true,
+        "row_anchor": "item_code",
+        "max_items": 20,
+        "fields": {
+          "item_code": "item code or product identifier",
+          "accepted": "quantity accepted into stock, after refused or returned units"
+        }
+      }
+    }
+  },
+  "data": {
+    "model": "clocked-1.0",
+    "fields": {
+      "po_reference": {
+        "value": "PO-24133",
+        "start": 106,
+        "end": 114,
+        "confidence": 0.9999999997988447,
+        "p_verify": 0.9999999997988447
+      },
+      "lines": {
+        "value": [
+          {
+            "item_code": "BP-TOM-25",
+            "accepted": "420"
+          },
+          {
+            "item_code": "BP-ONY-50",
+            "accepted": "40"
+          }
+        ],
+        "items": [
+          {
+            "start": 191,
+            "end": 366,
+            "fields": {
+              "item_code": {
+                "value": "BP-TOM-25",
+                "start": 252,
+                "end": 261,
+                "confidence": 0.9999999991498374,
+                "p_verify": 0.9999999991498374
+              },
+              "accepted": {
+                "value": "420",
+                "start": 360,
+                "end": 363,
+                "p_start": 1,
+                "p_close": 1,
+                "p_point": 0.982,
+                "p_verify": 1,
+                "alternatives": [
+                  {
+                    "value": "47",
+                    "start": 313,
+                    "p_verify": 0
+                  },
+                  {
+                    "value": "41",
+                    "start": 325,
+                    "p_verify": 0
+                  }
+                ],
+                "confidence": 1
+              }
+            }
+          },
+          {
+            "start": 366,
+            "end": 421,
+            "fields": {
+              "item_code": {
+                "value": "BP-ONY-50",
+                "start": 368,
+                "end": 377,
+                "confidence": 0.9999999988573531,
+                "p_verify": 0.9999999988573531
+              },
+              "accepted": {
+                "value": "40",
+                "start": 417,
+                "end": 419,
+                "p_start": 1,
+                "p_close": 1,
+                "p_point": 1,
+                "p_verify": 1,
+                "alternatives": [
+                  {
+                    "value": "40",
+                    "start": 408,
+                    "p_verify": 1
+                  }
+                ],
+                "confidence": 1
+              }
+            }
+          }
+        ],
+        "source": "extracted",
+        "row_anchor": "item_code"
+      }
+    },
+    "timing": {
+      "read_ms": 222,
+      "forwards": {
+        "fields": [
+          10,
+          0
+        ],
+        "records": [
+          8,
+          0
+        ]
+      },
+      "stages": {
+        "fields": {
+          "reader": "recognition",
+          "doc": 0,
+          "branches": 0,
+          "generate": 122,
+          "locate": 0,
+          "verify": 13,
+          "assemble": 0
+        },
+        "cells": {
+          "doc": 0,
+          "point": 15,
+          "resolve": 11,
+          "extend": 0,
+          "contest": 18,
+          "lists": 0,
+          "verify": 0
+        }
+      },
+      "records": {
+        "variant": "A",
+        "listing_ms": 0,
+        "starts_ms": 39,
+        "cells_ms": 45,
+        "forwards": {
+          "listing": [
+            0,
+            0
+          ],
+          "starts": [
+            4,
+            0
+          ],
+          "cells": [
+            4,
+            0
+          ]
+        },
+        "records": 2,
+        "cells": 2,
+        "explicit": 0
+      },
+      "total_ms": 222,
+      "server_ms": 225
+    }
+  },
+  "credits": 9
+}

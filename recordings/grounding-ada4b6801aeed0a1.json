@@ -1,0 +1,93 @@
+{
+  "endpoint": "grounding",
+  "payload": {
+    "documents": [
+      {
+        "id": "invoice",
+        "text": "Bayline Produce\n100 Commercial St, Portland ME\nINVOICE: BAY-55260\nDate: 14 Oct 2026\nBilled To: Harbor Street Kitchens\nCommissary, 410 Harbor St, Portland ME 04101\nPO Reference: PO-24133\n\n| Item Code | Description | Qty | Unit Price | Amount |\n| BP-TOM-25 | Roma tomatoes, 25 lb case | 420 | 11.90 | 4998.00 |\n| BP-ONY-50 | Yellow onions, 50 lb sack | 40 | 18.25 | 730.00 |\n\nSubtotal: USD 5,728.00\nTax: 0.00\nTotal due: USD 5,728.00\nThank you for your business. Remit to Bayline Produce."
+      },
+      {
+        "id": "purchase-order",
+        "text": "Harbor Street Kitchens\nCommissary, 410 Harbor St, Portland ME 04101\nPURCHASE ORDER: PO-24133\nDate: 08 Oct 2026\nVendor: Bayline Produce, 100 Commercial St, Portland ME\n\n| Item Code | Description | Qty | Unit Price |\n| BP-TOM-25 | Roma tomatoes, 25 lb case | 500 | 11.90 |\n| BP-ONY-50 | Yellow onions, 50 lb sack | 40 | 18.25 |\n\nAuthorized by: E. Davis"
+      },
+      {
+        "id": "receiving-note",
+        "text": "Harbor Street Kitchens\nCommissary, 410 Harbor St, Portland ME 04101\nRECEIVING NOTE: RN-8846\nPO Reference: PO-24133\nDelivery Date: 14 Oct 2026\nVendor: Bayline Produce\nDock Counter: M. Ruiz\n\n| Item Code | Description | Delivered | Refused | Accepted |\n| BP-TOM-25 | Roma tomatoes, 25 lb case | 500 | 80 (arrived at 47°F, limit 41°F, sent back with the driver) | 420 |\n| BP-ONY-50 | Yellow onions, 50 lb sack | 40 | 0 | 40 |\n\nCondition on arrival: Inspected at dock."
+      },
+      {
+        "id": "paylock-ledger",
+        "text": "LEDGER FINDINGS:\n- Every line matches and the totals add up.\n\nDOCUMENT CONFLICTS:\n- None."
+      }
+    ],
+    "answer": "The invoice matches the purchase order and receiving note",
+    "evidence": "all",
+    "instructions": "Check a note for an accounts-payable clerk against the invoice, the PO, the receiving note and the ledger findings. A sentence reporting what the invoice states is supported if the invoice says it. Statements that the invoice matches or that there are no conflicts are supported if the ledger findings report no discrepancies."
+  },
+  "data": {
+    "model": "clocked-1.0",
+    "grounded": 0.9733,
+    "ungrounded": 0.0267,
+    "verdict": "grounded",
+    "threshold": 0.5,
+    "instructions_used": "custom",
+    "documents": [
+      {
+        "id": "paylock-ledger",
+        "share": 0.9891,
+        "share_of_answer": 0.9627,
+        "claims": [
+          0
+        ]
+      },
+      {
+        "id": "receiving-note",
+        "share": 0.0038,
+        "share_of_answer": 0.0037,
+        "claims": []
+      },
+      {
+        "id": "invoice",
+        "share": 0.0036,
+        "share_of_answer": 0.0035,
+        "claims": []
+      },
+      {
+        "id": "purchase-order",
+        "share": 0.0035,
+        "share_of_answer": 0.0034,
+        "claims": []
+      }
+    ],
+    "claims": [
+      {
+        "claim": "The invoice matches the purchase order and receiving note",
+        "kind": "claim",
+        "counted": true,
+        "weight": 1,
+        "supported": 0.9733,
+        "contradicted": 0.0123,
+        "not_stated": 0.0076,
+        "not_a_claim": 0.0067,
+        "verdict": "supported",
+        "sources": {
+          "invoice": 0.0036,
+          "purchase-order": 0.0035,
+          "receiving-note": 0.0038,
+          "paylock-ledger": 0.9891
+        },
+        "source": "paylock-ledger"
+      }
+    ],
+    "unsupported_claims": [],
+    "not_claims": [],
+    "weakest_claim": {
+      "index": 0,
+      "supported": 0.9733
+    },
+    "timing": {
+      "read_ms": 162,
+      "total_ms": 164
+    }
+  },
+  "credits": 7
+}

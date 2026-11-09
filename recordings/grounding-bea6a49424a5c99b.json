@@ -1,0 +1,152 @@
+{
+  "endpoint": "grounding",
+  "payload": {
+    "documents": [
+      {
+        "id": "invoice",
+        "text": "Granite Paper Supply\nManchester NH\nINVOICE: GPS-11820\nDate: 15 Oct 2026\nBilled To: Harbour Lane Bistro, 12 Harbour Lane, Portland ME\nPO Reference: PO-90012\n\n| Item Code | Description | Qty | Unit Price | Amount |\n| GP-NAP-50 | Beverage napkins, 5000 ct | 8 | 42.50 | 340.00 |\n| GP-CUP-16 | Hot cups, 16 oz, 1000 ct | 4 | 70.00 | 280.00 |\n\nSubtotal: USD 620.00\nTax: 0.00\nTotal due: USD 620.00\nPayment due upon receipt."
+      },
+      {
+        "id": "purchase-order",
+        "text": "Harbor Street Kitchens\nCommissary, 410 Harbor St, Portland ME 04101\nPURCHASE ORDER: PO-24117\nDate: 08 Oct 2026\nVendor: Bayline Produce, 100 Commercial St, Portland ME\n\n| Item Code | Description | Qty | Unit Price |\n| BP-TOM-25 | Roma tomatoes, 25 lb case | 500 | 11.90 |\n| BP-ONY-50 | Yellow onions, 50 lb sack | 40 | 18.25 |\n\nAuthorized by: E. Davis"
+      },
+      {
+        "id": "receiving-note",
+        "text": "Harbor Street Kitchens\nCommissary, 410 Harbor St, Portland ME 04101\nRECEIVING NOTE: RN-8831\nPO Reference: PO-24117\nDelivery Date: 12 Oct 2026\nVendor: Bayline Produce\nDock Counter: M. Ruiz\n\n| Item Code | Description | Delivered | Refused | Accepted |\n| BP-TOM-25 | Roma tomatoes, 25 lb case | 500 | 0 | 500 |\n| BP-ONY-50 | Yellow onions, 50 lb sack | 40 | 0 | 40 |\n\nCondition on arrival: Inspected at dock."
+      },
+      {
+        "id": "paylock-ledger",
+        "text": "LEDGER FINDINGS:\n- The invoice cites PO-90012, but this purchase order is PO-24117.\n- Beverage napkins, 5000 ct is billed but isn't on the purchase order.\n- Beverage napkins, 5000 ct: billed 8, the dock accepted 0.\n- Hot cups, 16 oz, 1000 ct is billed but isn't on the purchase order.\n- Hot cups, 16 oz, 1000 ct: billed 4, the dock accepted 0.\n\nDOCUMENT CONFLICTS:\n- None."
+      }
+    ],
+    "answer": "The invoice cites PO-90012, but this purchase order is PO-24117. Beverage napkins, 5000 ct is billed but isn't on the purchase order. Beverage napkins, 5000 ct: billed 8, the dock",
+    "evidence": "all",
+    "instructions": "Check a note for an accounts-payable clerk against the invoice, the PO, the receiving note and the ledger findings. A sentence reporting what the invoice states is supported if the invoice says it. Statements that the invoice matches or that there are no conflicts are supported if the ledger findings report no discrepancies."
+  },
+  "data": {
+    "model": "clocked-1.0",
+    "grounded": 0.9939,
+    "ungrounded": 0.0061,
+    "verdict": "grounded",
+    "threshold": 0.5,
+    "instructions_used": "custom",
+    "documents": [
+      {
+        "id": "paylock-ledger",
+        "share": 0.9965,
+        "share_of_answer": 0.9904,
+        "claims": [
+          0,
+          1,
+          2
+        ]
+      },
+      {
+        "id": "purchase-order",
+        "share": 0.0015,
+        "share_of_answer": 0.0015,
+        "claims": []
+      },
+      {
+        "id": "invoice",
+        "share": 0.001,
+        "share_of_answer": 0.001,
+        "claims": []
+      },
+      {
+        "id": "receiving-note",
+        "share": 0.001,
+        "share_of_answer": 0.001,
+        "claims": []
+      }
+    ],
+    "claims": [
+      {
+        "claim": "The invoice cites PO-90012, but this purchase order is PO-24117.",
+        "kind": "claim",
+        "counted": true,
+        "weight": 0.3616,
+        "supported": 0.9962,
+        "contradicted": 0.0014,
+        "not_stated": 0.0013,
+        "not_a_claim": 0.0011,
+        "verdict": "supported",
+        "sources": {
+          "invoice": 0.0008,
+          "purchase-order": 0.001,
+          "receiving-note": 0.0007,
+          "paylock-ledger": 0.9975
+        },
+        "source": "paylock-ledger",
+        "evidence": {
+          "document": "paylock-ledger",
+          "quote": "The invoice cites PO-90012, but this purchase order is PO-24117.",
+          "start": 19,
+          "end": 83,
+          "confidence": 1
+        }
+      },
+      {
+        "claim": "Beverage napkins, 5000 ct is billed but isn't on the purchase order.",
+        "kind": "claim",
+        "counted": true,
+        "weight": 0.3842,
+        "supported": 0.9919,
+        "contradicted": 0.003,
+        "not_stated": 0.0034,
+        "not_a_claim": 0.0017,
+        "verdict": "supported",
+        "sources": {
+          "invoice": 0.0011,
+          "purchase-order": 0.0021,
+          "receiving-note": 0.0012,
+          "paylock-ledger": 0.9956
+        },
+        "source": "paylock-ledger",
+        "evidence": {
+          "document": "paylock-ledger",
+          "quote": "Beverage napkins, 5000 ct is billed but isn't on the purchase order.",
+          "start": 86,
+          "end": 154,
+          "confidence": 1
+        }
+      },
+      {
+        "claim": "Beverage napkins, 5000 ct: billed 8, the dock",
+        "kind": "claim",
+        "counted": true,
+        "weight": 0.2542,
+        "supported": 0.9934,
+        "contradicted": 0.0019,
+        "not_stated": 0.003,
+        "not_a_claim": 0.0016,
+        "verdict": "supported",
+        "sources": {
+          "invoice": 0.0011,
+          "purchase-order": 0.0015,
+          "receiving-note": 0.001,
+          "paylock-ledger": 0.9964
+        },
+        "source": "paylock-ledger",
+        "evidence": {
+          "document": "paylock-ledger",
+          "quote": "Beverage napkins, 5000 ct: billed 8, the dock accepted 0.",
+          "start": 157,
+          "end": 214,
+          "confidence": 1
+        }
+      }
+    ],
+    "unsupported_claims": [],
+    "not_claims": [],
+    "weakest_claim": {
+      "index": 1,
+      "supported": 0.9919
+    },
+    "timing": {
+      "read_ms": 135,
+      "total_ms": 139
+    }
+  },
+  "credits": 5
+}

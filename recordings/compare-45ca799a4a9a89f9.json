@@ -1,0 +1,113 @@
+{
+  "endpoint": "compare",
+  "payload": {
+    "documents": [
+      {
+        "id": "invoice",
+        "text": "Bayline Produce\n100 Commercial St, Portland ME\nINVOICE: BAY-55260\nDate: 14 Oct 2026\nBilled To: Harbor Street Kitchens\nCommissary, 410 Harbor St, Portland ME 04101\nPO Reference: PO-24133\n\n| Item Code | Description | Qty | Unit Price | Amount |\n| BP-TOM-25 | Roma tomatoes, 25 lb case | 420 | 11.90 | 4998.00 |\n| BP-ONY-50 | Yellow onions, 50 lb sack | 40 | 18.25 | 730.00 |\n\nSubtotal: USD 5,728.00\nTax: 0.00\nTotal due: USD 5,728.00\nThank you for your business. Remit to Bayline Produce."
+      },
+      {
+        "id": "purchase-order",
+        "text": "Harbor Street Kitchens\nCommissary, 410 Harbor St, Portland ME 04101\nPURCHASE ORDER: PO-24133\nDate: 08 Oct 2026\nVendor: Bayline Produce, 100 Commercial St, Portland ME\n\n| Item Code | Description | Qty | Unit Price |\n| BP-TOM-25 | Roma tomatoes, 25 lb case | 500 | 11.90 |\n| BP-ONY-50 | Yellow onions, 50 lb sack | 40 | 18.25 |\n\nAuthorized by: E. Davis"
+      },
+      {
+        "id": "receiving-note",
+        "text": "Harbor Street Kitchens\nCommissary, 410 Harbor St, Portland ME 04101\nRECEIVING NOTE: RN-8846\nPO Reference: PO-24133\nDelivery Date: 14 Oct 2026\nVendor: Bayline Produce\nDock Counter: M. Ruiz\n\n| Item Code | Description | Delivered | Refused | Accepted |\n| BP-TOM-25 | Roma tomatoes, 25 lb case | 500 | 80 (arrived at 47°F, limit 41°F, sent back with the driver) | 420 |\n| BP-ONY-50 | Yellow onions, 50 lb sack | 40 | 0 | 40 |\n\nCondition on arrival: Inspected at dock."
+      }
+    ],
+    "evidence": "flagged",
+    "instructions": "The three documents describe one order. Report a conflict only about what an item is (product, variety, grade, brand, pack size or count, unit of measure) or who the buyer or vendor is. Ignore quantities, prices, amounts, totals, tax, dates, document numbers and wording, because Paylock checks numbers with arithmetic. █ is redacted text."
+  },
+  "data": {
+    "model": "clocked-1.0",
+    "verdict": "clean",
+    "threshold": 0.5,
+    "instructions_used": "custom",
+    "evidence": "flagged",
+    "documents": [
+      {
+        "id": "invoice",
+        "duplicates": [],
+        "overlaps": [],
+        "conflicts": []
+      },
+      {
+        "id": "purchase-order",
+        "duplicates": [],
+        "overlaps": [],
+        "conflicts": []
+      },
+      {
+        "id": "receiving-note",
+        "duplicates": [],
+        "overlaps": [],
+        "conflicts": []
+      }
+    ],
+    "pairs": [
+      {
+        "a": "invoice",
+        "b": "purchase-order",
+        "relation": "overlapping",
+        "related": 0.9878,
+        "probabilities": {
+          "same": 0.0169,
+          "overlapping": 0.8902,
+          "conflicting": 0.0807,
+          "unrelated": 0.0122
+        },
+        "duplicates": [],
+        "conflicts": []
+      },
+      {
+        "a": "invoice",
+        "b": "receiving-note",
+        "relation": "overlapping",
+        "related": 0.9932,
+        "probabilities": {
+          "same": 0.0277,
+          "overlapping": 0.9417,
+          "conflicting": 0.0237,
+          "unrelated": 0.0068
+        },
+        "duplicates": [],
+        "conflicts": []
+      },
+      {
+        "a": "purchase-order",
+        "b": "receiving-note",
+        "relation": "overlapping",
+        "related": 0.996,
+        "probabilities": {
+          "same": 0.0132,
+          "overlapping": 0.972,
+          "conflicting": 0.0108,
+          "unrelated": 0.004
+        },
+        "duplicates": [],
+        "conflicts": []
+      }
+    ],
+    "duplicates": [],
+    "overlaps": [],
+    "conflicts": [],
+    "related_pairs": [
+      0,
+      1,
+      2
+    ],
+    "stages": {
+      "pairs_reread": 0,
+      "pairs_ms": 15,
+      "passage_reads": 1,
+      "passages_ms": 48,
+      "passages": 3,
+      "counterparts_ms": 138
+    },
+    "timing": {
+      "read_ms": 201,
+      "total_ms": 203
+    }
+  },
+  "credits": 8
+}

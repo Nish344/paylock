@@ -1,0 +1,113 @@
+{
+  "endpoint": "compare",
+  "payload": {
+    "documents": [
+      {
+        "id": "invoice",
+        "text": "Copperleaf Dry Goods\nPortsmouth NH\nINVOICE: CDG-3307\nDate: 16 Oct 2026\nBilled To: Harbor Street Kitchens\nCommissary, 410 Harbor St, Portland ME 04101\nPO Reference: PO-24129\n\n| Item Code | Description | Qty | Unit Price | Amount |\n| CL-FLR-50 | All-purpose flour, 50 lb | 30 | 21.40 | 642.00 |\n| CL-RCE-25 | Jasmine rice, 25 lb | 20 | 27.80 | 556.00 |\n\nSubtotal: USD 1,289.00\nTax: 0.00\nTotal due: USD 1,289.00\nThank you for your business."
+      },
+      {
+        "id": "purchase-order",
+        "text": "Harbor Street Kitchens\nCommissary, 410 Harbor St, Portland ME 04101\nPURCHASE ORDER: PO-24129\nDate: 10 Oct 2026\nVendor: Copperleaf Dry Goods, Portsmouth NH\n\n| Item Code | Description | Qty | Unit Price |\n| CL-FLR-50 | All-purpose flour, 50 lb | 30 | 21.40 |\n| CL-RCE-25 | Jasmine rice, 25 lb | 20 | 27.80 |\n\nAuthorized by: E. Davis"
+      },
+      {
+        "id": "receiving-note",
+        "text": "Harbor Street Kitchens\nCommissary, 410 Harbor St, Portland ME 04101\nRECEIVING NOTE: RN-8841\nPO Reference: PO-24129\nDelivery Date: 14 Oct 2026\nVendor: Copperleaf Dry Goods\nDock Counter: M. Ruiz\n\n| Item Code | Description | Delivered | Refused | Accepted |\n| CL-FLR-50 | All-purpose flour, 50 lb | 30 | 0 | 30 |\n| CL-RCE-25 | Jasmine rice, 25 lb | 20 | 0 | 20 |\n\nCondition on arrival: Dry and undamaged."
+      }
+    ],
+    "evidence": "flagged",
+    "instructions": "The three documents describe one order. Report a conflict only about what an item is (product, variety, grade, brand, pack size or count, unit of measure) or who the buyer or vendor is. Ignore quantities, prices, amounts, totals, tax, dates, document numbers and wording, because Paylock checks numbers with arithmetic. █ is redacted text."
+  },
+  "data": {
+    "model": "clocked-1.0",
+    "verdict": "clean",
+    "threshold": 0.5,
+    "instructions_used": "custom",
+    "evidence": "flagged",
+    "documents": [
+      {
+        "id": "invoice",
+        "duplicates": [],
+        "overlaps": [],
+        "conflicts": []
+      },
+      {
+        "id": "purchase-order",
+        "duplicates": [],
+        "overlaps": [],
+        "conflicts": []
+      },
+      {
+        "id": "receiving-note",
+        "duplicates": [],
+        "overlaps": [],
+        "conflicts": []
+      }
+    ],
+    "pairs": [
+      {
+        "a": "invoice",
+        "b": "purchase-order",
+        "relation": "overlapping",
+        "related": 0.9968,
+        "probabilities": {
+          "same": 0.0254,
+          "overlapping": 0.9613,
+          "conflicting": 0.01,
+          "unrelated": 0.0032
+        },
+        "duplicates": [],
+        "conflicts": []
+      },
+      {
+        "a": "invoice",
+        "b": "receiving-note",
+        "relation": "overlapping",
+        "related": 0.9979,
+        "probabilities": {
+          "same": 0.0076,
+          "overlapping": 0.9848,
+          "conflicting": 0.0055,
+          "unrelated": 0.0021
+        },
+        "duplicates": [],
+        "conflicts": []
+      },
+      {
+        "a": "purchase-order",
+        "b": "receiving-note",
+        "relation": "overlapping",
+        "related": 0.9986,
+        "probabilities": {
+          "same": 0.0051,
+          "overlapping": 0.9882,
+          "conflicting": 0.0053,
+          "unrelated": 0.0014
+        },
+        "duplicates": [],
+        "conflicts": []
+      }
+    ],
+    "duplicates": [],
+    "overlaps": [],
+    "conflicts": [],
+    "related_pairs": [
+      0,
+      1,
+      2
+    ],
+    "stages": {
+      "pairs_reread": 0,
+      "pairs_ms": 20,
+      "passage_reads": 1,
+      "passages_ms": 47,
+      "passages": 3,
+      "counterparts_ms": 136
+    },
+    "timing": {
+      "read_ms": 203,
+      "total_ms": 205
+    }
+  },
+  "credits": 8
+}

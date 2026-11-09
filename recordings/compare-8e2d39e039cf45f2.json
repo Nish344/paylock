@@ -1,0 +1,178 @@
+{
+  "endpoint": "compare",
+  "payload": {
+    "documents": [
+      {
+        "id": "invoice",
+        "text": "Bayline Produce\nPortland ME\nINVOICE: BAY-55244\nDate: 15 Oct 2026\nBilled To: Harbor Street Kitchens\nCommissary, 410 Harbor St, Portland ME 04101\nPO Reference: PO-24140\n\n| Item Code | Description | Qty | Unit Price | Amount |\n| BP-AVO-48 | Hass avocados, 60 ct case | 30 | 52.00 | 1,560.00 |\n| BP-LIM-10 | Persian limes, 10 lb case | 6 | 38.50 | 231.00 |\n\nSubtotal: USD 1,791.00\nTax: 0.00\nTotal due: USD 1,791.00\nThank you for your business."
+      },
+      {
+        "id": "purchase-order",
+        "text": "Harbor Street Kitchens\nCommissary, 410 Harbor St, Portland ME 04101\nPURCHASE ORDER: PO-24140\nDate: 11 Oct 2026\nVendor: Bayline Produce, Portland ME\n\n| Item Code | Description | Qty | Unit Price |\n| BP-AVO-48 | Hass avocados, 48 ct case | 30 | 52.00 |\n| BP-LIM-10 | Persian limes, 10 lb case | 6 | 38.50 |\n\nAuthorized by: E. Davis"
+      },
+      {
+        "id": "receiving-note",
+        "text": "Harbor Street Kitchens\nCommissary, 410 Harbor St, Portland ME 04101\nRECEIVING NOTE: RN-8843\nPO Reference: PO-24140\nDelivery Date: 13 Oct 2026\nVendor: Bayline Produce\nDock Counter: M. Ruiz\n\n| Item Code | Description | Delivered | Refused | Accepted |\n| BP-AVO-48 | Hass avocados, 60 ct case | 30 | 0 | 30 |\n| BP-LIM-10 | Persian limes, 10 lb case | 6 | 0 | 6 |\n\nCondition on arrival: Note: vendor substitution, accepted pending buyer review."
+      }
+    ],
+    "evidence": "flagged",
+    "instructions": "The three documents describe one order. Report a conflict only about what an item is (product, variety, grade, brand, pack size or count, unit of measure) or who the buyer or vendor is. Ignore quantities, prices, amounts, totals, tax, dates, document numbers and wording, because Paylock checks numbers with arithmetic. █ is redacted text."
+  },
+  "data": {
+    "model": "clocked-1.0",
+    "verdict": "conflicts",
+    "threshold": 0.5,
+    "instructions_used": "custom",
+    "evidence": "flagged",
+    "documents": [
+      {
+        "id": "invoice",
+        "duplicates": [],
+        "overlaps": [],
+        "conflicts": [
+          "purchase-order"
+        ]
+      },
+      {
+        "id": "purchase-order",
+        "duplicates": [],
+        "overlaps": [],
+        "conflicts": [
+          "invoice",
+          "receiving-note"
+        ]
+      },
+      {
+        "id": "receiving-note",
+        "duplicates": [],
+        "overlaps": [],
+        "conflicts": [
+          "purchase-order"
+        ]
+      }
+    ],
+    "pairs": [
+      {
+        "a": "invoice",
+        "b": "purchase-order",
+        "relation": "conflicting",
+        "related": 0.9968,
+        "probabilities": {
+          "same": 0.0039,
+          "overlapping": 0.0067,
+          "conflicting": 0.9863,
+          "unrelated": 0.0032
+        },
+        "duplicates": [],
+        "conflicts": [
+          {
+            "kind": "value",
+            "kinds": {
+              "value": 0.4851,
+              "date_or_version": 0.0211,
+              "rule_or_condition": 0.0634,
+              "scope": 0.2097,
+              "name": 0.1675,
+              "no_conflict": 0.0532
+            },
+            "confidence": 0.9468,
+            "a": {
+              "document": "invoice",
+              "quote": "| BP-AVO-48 | Hass avocados, 60 ct case | 30 | 52.00 | 1,560.00 |",
+              "start": 224,
+              "end": 289,
+              "confidence": 1
+            },
+            "b": {
+              "document": "purchase-order",
+              "quote": "Harbor Street Kitchens\nCommissary, 410 Harbor St, Portland ME 04101\nPURCHASE ORDER: PO-24140\nDate: 11 Oct 2026\nVendor: Bayline Produce, Portland ME\n\n| Item Code | Description | Qty | Unit Price |\n| BP-AVO-48 | Hass avocados, 48 ct case | 30 | 52.00 |\n| BP-LIM-10 | Persian limes, 10 lb case | 6 | 38.50 |\n\nAuthorized by: E. Davis",
+              "start": 0,
+              "end": 329,
+              "confidence": 1
+            }
+          }
+        ]
+      },
+      {
+        "a": "invoice",
+        "b": "receiving-note",
+        "relation": "same",
+        "related": 0.9909,
+        "probabilities": {
+          "same": 0.8839,
+          "overlapping": 0.085,
+          "conflicting": 0.022,
+          "unrelated": 0.0091
+        },
+        "duplicates": [],
+        "conflicts": []
+      },
+      {
+        "a": "purchase-order",
+        "b": "receiving-note",
+        "relation": "conflicting",
+        "related": 0.9861,
+        "probabilities": {
+          "same": 0.0206,
+          "overlapping": 0.0915,
+          "conflicting": 0.874,
+          "unrelated": 0.0139
+        },
+        "duplicates": [],
+        "conflicts": [
+          {
+            "kind": "value",
+            "kinds": {
+              "value": 0.5001,
+              "date_or_version": 0.0253,
+              "rule_or_condition": 0.0913,
+              "scope": 0.2543,
+              "name": 0.0755,
+              "no_conflict": 0.0535
+            },
+            "confidence": 0.9465,
+            "a": {
+              "document": "purchase-order",
+              "quote": "| BP-AVO-48 | Hass avocados, 48 ct case | 30 | 52.00 |",
+              "start": 196,
+              "end": 250,
+              "confidence": 0.992
+            },
+            "b": {
+              "document": "receiving-note",
+              "quote": "Harbor Street Kitchens\nCommissary, 410 Harbor St, Portland ME 04101\nRECEIVING NOTE: RN-8843\nPO Reference: PO-24140\nDelivery Date: 13 Oct 2026\nVendor: Bayline Produce\nDock Counter: M. Ruiz\n\n| Item Code | Description | Delivered | Refused | Accepted |\n| BP-AVO-48 | Hass avocados, 60 ct case | 30 | 0 | 30 |\n| BP-LIM-10 | Persian limes, 10 lb case | 6 | 0 | 6 |\n\nCondition on arrival: Note: vendor substitution, accepted pending buyer review.",
+              "start": 0,
+              "end": 440,
+              "confidence": 1
+            }
+          }
+        ]
+      }
+    ],
+    "duplicates": [],
+    "overlaps": [],
+    "conflicts": [
+      0,
+      2
+    ],
+    "related_pairs": [
+      0,
+      1,
+      2
+    ],
+    "stages": {
+      "pairs_reread": 0,
+      "pairs_ms": 15,
+      "passage_reads": 1,
+      "passages_ms": 48,
+      "passages": 5,
+      "counterparts_ms": 219,
+      "kinds_ms": 46
+    },
+    "timing": {
+      "read_ms": 327,
+      "total_ms": 330
+    }
+  },
+  "credits": 13
+}

@@ -1,0 +1,259 @@
+{
+  "endpoint": "extract",
+  "payload": {
+    "text": "Bayline Produce\n100 Commercial St, Portland ME\nINVOICE: BAY-55210\nDate: 14 Oct 2026\nBilled To: Harbor Street Kitchens\nCommissary, 410 Harbor St, Portland ME 04101\nPO Reference: PO-24117\n\n| Item Code | Description | Qty | Unit Price | Amount |\n| BP-TOM-25 | Roma tomatoes, 25 lb case | 500 | 11.90 | 5950.00 |\n| BP-ONY-50 | Yellow onions, 50 lb sack | 40 | 18.25 | 730.00 |\n\nSubtotal: USD 6,680.00\nTax: 0.00\nTotal due: USD 6,680.00\nThank you for your business. Remit to Bayline Produce.",
+    "fields": {
+      "po_reference": "purchase order number cited on the invoice",
+      "lines": {
+        "description": "invoice line items",
+        "list": true,
+        "row_anchor": "item_code",
+        "max_items": 20,
+        "fields": {
+          "item_code": "item code or product identifier",
+          "description": "item description",
+          "quantity": "quantity billed",
+          "unit_price": "unit price",
+          "amount": "line total amount"
+        }
+      },
+      "subtotal": "subtotal amount",
+      "tax": "tax amount",
+      "total": "total due amount"
+    }
+  },
+  "data": {
+    "model": "clocked-1.0",
+    "fields": {
+      "po_reference": {
+        "value": "PO-24117",
+        "start": 177,
+        "end": 185,
+        "confidence": 0.9999999998091005,
+        "p_verify": 0.9999999998091005
+      },
+      "subtotal": {
+        "value": "6,680.00",
+        "start": 388,
+        "end": 396,
+        "confidence": 0.9999999989372752,
+        "p_verify": 0.9999999989372752
+      },
+      "tax": {
+        "value": "0.00",
+        "start": 302,
+        "end": 306,
+        "confidence": 0.9999999997687734,
+        "p_verify": 0.9999999997687734
+      },
+      "total": {
+        "value": "USD 6,680.00",
+        "start": 384,
+        "end": 396,
+        "confidence": 0.9999999953048175,
+        "p_verify": 0.9999999953048175
+      },
+      "lines": {
+        "value": [
+          {
+            "item_code": "BP-TOM-25",
+            "description": "Roma tomatoes, 25 lb case",
+            "quantity": "500",
+            "unit_price": "11.90",
+            "amount": "5950.00"
+          },
+          {
+            "item_code": "BP-ONY-50",
+            "description": "Yellow onions, 50 lb sack",
+            "quantity": "40",
+            "unit_price": "18.25",
+            "amount": "730.00"
+          }
+        ],
+        "items": [
+          {
+            "start": 189,
+            "end": 309,
+            "fields": {
+              "item_code": {
+                "value": "BP-TOM-25",
+                "start": 245,
+                "end": 254,
+                "confidence": 0.9999999983139969,
+                "p_verify": 0.9999999983139969
+              },
+              "description": {
+                "value": "Roma tomatoes, 25 lb case",
+                "start": 257,
+                "end": 282,
+                "p_start": 1,
+                "p_close": 1,
+                "p_point": 0.5,
+                "p_verify": 1,
+                "confidence": 1
+              },
+              "quantity": {
+                "value": "500",
+                "start": 285,
+                "end": 288,
+                "p_start": 1,
+                "p_close": 1,
+                "p_point": 0.889,
+                "p_verify": 1,
+                "alternatives": [
+                  {
+                    "value": "5950.00",
+                    "start": 299,
+                    "p_verify": 0
+                  }
+                ],
+                "confidence": 1
+              },
+              "unit_price": {
+                "value": "11.90",
+                "start": 291,
+                "end": 296,
+                "p_start": 1,
+                "p_close": 1,
+                "p_point": 1,
+                "p_verify": 1,
+                "confidence": 1
+              },
+              "amount": {
+                "value": "5950.00",
+                "start": 299,
+                "end": 306,
+                "p_start": 1,
+                "p_close": 1,
+                "p_point": 0.994,
+                "p_verify": 1,
+                "alternatives": [
+                  {
+                    "value": "500",
+                    "start": 285,
+                    "p_verify": 0
+                  }
+                ],
+                "confidence": 1
+              }
+            }
+          },
+          {
+            "start": 309,
+            "end": 372,
+            "fields": {
+              "item_code": {
+                "value": "BP-ONY-50",
+                "start": 311,
+                "end": 320,
+                "confidence": 0.999999998936004,
+                "p_verify": 0.999999998936004
+              },
+              "description": {
+                "value": "Yellow onions, 50 lb sack",
+                "start": 323,
+                "end": 348,
+                "p_start": 1,
+                "p_close": 1,
+                "p_point": 0.5,
+                "p_verify": 1,
+                "confidence": 1
+              },
+              "quantity": {
+                "value": "40",
+                "start": 351,
+                "end": 353,
+                "p_start": 1,
+                "p_close": 1,
+                "p_point": 1,
+                "p_verify": 1,
+                "confidence": 1
+              },
+              "unit_price": {
+                "value": "18.25",
+                "start": 356,
+                "end": 361,
+                "p_start": 1,
+                "p_close": 1,
+                "p_point": 1,
+                "p_verify": 1,
+                "confidence": 1
+              },
+              "amount": {
+                "value": "730.00",
+                "start": 364,
+                "end": 370,
+                "p_start": 1,
+                "p_close": 1,
+                "p_point": 1,
+                "p_verify": 1,
+                "confidence": 1
+              }
+            }
+          }
+        ],
+        "source": "extracted",
+        "row_anchor": "item_code"
+      }
+    },
+    "timing": {
+      "read_ms": 260,
+      "forwards": {
+        "fields": [
+          10,
+          0
+        ],
+        "records": [
+          8,
+          0
+        ]
+      },
+      "stages": {
+        "fields": {
+          "reader": "recognition",
+          "doc": 0,
+          "branches": 1,
+          "generate": 125,
+          "locate": 0,
+          "verify": 24,
+          "assemble": 0
+        },
+        "cells": {
+          "doc": 0,
+          "point": 26,
+          "resolve": 13,
+          "extend": 0,
+          "contest": 23,
+          "lists": 0,
+          "verify": 0
+        }
+      },
+      "records": {
+        "variant": "A",
+        "listing_ms": 0,
+        "starts_ms": 44,
+        "cells_ms": 64,
+        "forwards": {
+          "listing": [
+            0,
+            0
+          ],
+          "starts": [
+            4,
+            0
+          ],
+          "cells": [
+            4,
+            0
+          ]
+        },
+        "records": 2,
+        "cells": 8,
+        "explicit": 0
+      },
+      "total_ms": 260,
+      "server_ms": 297
+    }
+  },
+  "credits": 11
+}

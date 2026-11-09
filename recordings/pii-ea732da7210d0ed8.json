@@ -1,0 +1,40 @@
+{
+  "endpoint": "pii",
+  "payload": {
+    "text": "Bayline Produce\nPortland ME\nINVOICE: BAY-55244\nDate: 15 Oct 2026\nBilled To: Harbor Street Kitchens\nCommissary, 410 Harbor St, Portland ME 04101\nPO Reference: PO-24140\n\n| Item Code | Description | Qty | Unit Price | Amount |\n| BP-AVO-48 | Hass avocados, 60 ct case | 30 | 52.00 | 1,560.00 |\n| BP-LIM-10 | Persian limes, 10 lb case | 6 | 38.50 | 231.00 |\n\nSubtotal: USD 1,791.00\nTax: 0.00\nTotal due: USD 1,791.00\nThank you for your business.",
+    "entities": {
+      "bank_account": null,
+      "routing_number": "bank routing numbers, sort codes, IBAN or SWIFT/BIC codes"
+    }
+  },
+  "data": {
+    "model": "clocked-1.0",
+    "entities": [],
+    "counts": {},
+    "threshold": 0.5,
+    "instructions_used": "default",
+    "mentions": {
+      "candidates": 0,
+      "variants": 0,
+      "reads": 0,
+      "verified": 0,
+      "occurrences": {
+        "read": 0,
+        "kept": 0
+      },
+      "rejected": {},
+      "spans": 0,
+      "ms": 0
+    },
+    "checks": {
+      "trimmed": 0,
+      "split": 0,
+      "rejected": {}
+    },
+    "timing": {
+      "read_ms": 267,
+      "total_ms": 268
+    }
+  },
+  "credits": 1
+}

@@ -1,0 +1,245 @@
+{
+  "endpoint": "extract",
+  "payload": {
+    "text": "Granite Paper Supply\nManchester NH\nINVOICE: GPS-11820\nDate: 15 Oct 2026\nBilled To: Harbour Lane Bistro, 12 Harbour Lane, Portland ME\nPO Reference: PO-90012\n\n| Item Code | Description | Qty | Unit Price | Amount |\n| GP-NAP-50 | Beverage napkins, 5000 ct | 8 | 42.50 | 340.00 |\n| GP-CUP-16 | Hot cups, 16 oz, 1000 ct | 4 | 70.00 | 280.00 |\n\nSubtotal: USD 620.00\nTax: 0.00\nTotal due: USD 620.00\nPayment due upon receipt.",
+    "fields": {
+      "po_reference": "purchase order number cited on the invoice",
+      "lines": {
+        "description": "invoice line items",
+        "list": true,
+        "row_anchor": "item_code",
+        "max_items": 20,
+        "fields": {
+          "item_code": "item code or product identifier",
+          "description": "item description",
+          "quantity": "quantity billed",
+          "unit_price": "unit price",
+          "amount": "line total amount"
+        }
+      },
+      "subtotal": "subtotal amount",
+      "tax": "tax amount",
+      "total": "total due amount"
+    }
+  },
+  "data": {
+    "model": "clocked-1.0",
+    "fields": {
+      "po_reference": {
+        "value": "PO-90012",
+        "start": 147,
+        "end": 155,
+        "confidence": 0.9999999996953135,
+        "p_verify": 0.9999999996953135
+      },
+      "subtotal": {
+        "value": "USD 620.00",
+        "start": 349,
+        "end": 359,
+        "confidence": 0.9999892552970178,
+        "p_verify": 0.9999892552970178
+      },
+      "tax": {
+        "value": "0.00",
+        "start": 269,
+        "end": 273,
+        "confidence": 0.999999999522575,
+        "p_verify": 0.999999999522575
+      },
+      "total": {
+        "value": "USD 620.00",
+        "start": 349,
+        "end": 359,
+        "confidence": 0.9999999962585955,
+        "p_verify": 0.9999999962585955
+      },
+      "lines": {
+        "value": [
+          {
+            "item_code": "GP-NAP-50",
+            "description": "Beverage napkins, 5000 ct",
+            "quantity": "8",
+            "unit_price": "42.50",
+            "amount": "340.00"
+          },
+          {
+            "item_code": "GP-CUP-16",
+            "description": "Hot cups, 16 oz, 1000 ct",
+            "quantity": "4",
+            "unit_price": "70.00",
+            "amount": "280.00"
+          }
+        ],
+        "items": [
+          {
+            "start": 159,
+            "end": 278,
+            "fields": {
+              "item_code": {
+                "value": "GP-NAP-50",
+                "start": 215,
+                "end": 224,
+                "confidence": 0.9999999993227442,
+                "p_verify": 0.9999999993227442
+              },
+              "description": {
+                "value": "Beverage napkins, 5000 ct",
+                "start": 227,
+                "end": 252,
+                "p_start": 1,
+                "p_close": 1,
+                "p_point": 1,
+                "p_verify": 1,
+                "confidence": 1
+              },
+              "quantity": {
+                "value": "8",
+                "start": 255,
+                "end": 256,
+                "p_start": 1,
+                "p_close": 1,
+                "p_point": 1,
+                "p_verify": 1,
+                "confidence": 1
+              },
+              "unit_price": {
+                "value": "42.50",
+                "start": 259,
+                "end": 264,
+                "p_start": 1,
+                "p_close": 1,
+                "p_point": 1,
+                "p_verify": 1,
+                "confidence": 1
+              },
+              "amount": {
+                "value": "340.00",
+                "start": 267,
+                "end": 273,
+                "p_start": 1,
+                "p_close": 1,
+                "p_point": 1,
+                "p_verify": 1,
+                "confidence": 1
+              }
+            }
+          },
+          {
+            "start": 278,
+            "end": 337,
+            "fields": {
+              "item_code": {
+                "value": "GP-CUP-16",
+                "start": 278,
+                "end": 287,
+                "confidence": 0.9999999994680295,
+                "p_verify": 0.9999999994680295
+              },
+              "description": {
+                "value": "Hot cups, 16 oz, 1000 ct",
+                "start": 290,
+                "end": 314,
+                "p_start": 1,
+                "p_close": 1,
+                "p_point": 0.5,
+                "p_verify": 1,
+                "confidence": 1
+              },
+              "quantity": {
+                "value": "4",
+                "start": 317,
+                "end": 318,
+                "p_start": 1,
+                "p_close": 1,
+                "p_point": 1,
+                "p_verify": 1,
+                "confidence": 1
+              },
+              "unit_price": {
+                "value": "70.00",
+                "start": 321,
+                "end": 326,
+                "p_start": 1,
+                "p_close": 1,
+                "p_point": 1,
+                "p_verify": 1,
+                "confidence": 1
+              },
+              "amount": {
+                "value": "280.00",
+                "start": 329,
+                "end": 335,
+                "p_start": 1,
+                "p_close": 1,
+                "p_point": 1,
+                "p_verify": 1,
+                "confidence": 1
+              }
+            }
+          }
+        ],
+        "source": "extracted",
+        "row_anchor": "item_code"
+      }
+    },
+    "timing": {
+      "read_ms": 235,
+      "forwards": {
+        "fields": [
+          9,
+          0
+        ],
+        "records": [
+          8,
+          0
+        ]
+      },
+      "stages": {
+        "fields": {
+          "reader": "recognition",
+          "doc": 0,
+          "branches": 1,
+          "generate": 112,
+          "locate": 0,
+          "verify": 19,
+          "assemble": 0
+        },
+        "cells": {
+          "doc": 0,
+          "point": 25,
+          "resolve": 12,
+          "extend": 0,
+          "contest": 23,
+          "lists": 0,
+          "verify": 0
+        }
+      },
+      "records": {
+        "variant": "A",
+        "listing_ms": 0,
+        "starts_ms": 39,
+        "cells_ms": 62,
+        "forwards": {
+          "listing": [
+            0,
+            0
+          ],
+          "starts": [
+            4,
+            0
+          ],
+          "cells": [
+            4,
+            0
+          ]
+        },
+        "records": 2,
+        "cells": 8,
+        "explicit": 0
+      },
+      "total_ms": 235,
+      "server_ms": 457
+    }
+  },
+  "credits": 10
+}

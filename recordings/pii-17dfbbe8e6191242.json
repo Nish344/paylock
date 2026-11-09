@@ -1,0 +1,40 @@
+{
+  "endpoint": "pii",
+  "payload": {
+    "text": "Granite Paper Supply\nManchester NH\nINVOICE: GPS-11820\nDate: 15 Oct 2026\nBilled To: Harbour Lane Bistro, 12 Harbour Lane, Portland ME\nPO Reference: PO-90012\n\n| Item Code | Description | Qty | Unit Price | Amount |\n| GP-NAP-50 | Beverage napkins, 5000 ct | 8 | 42.50 | 340.00 |\n| GP-CUP-16 | Hot cups, 16 oz, 1000 ct | 4 | 70.00 | 280.00 |\n\nSubtotal: USD 620.00\nTax: 0.00\nTotal due: USD 620.00\nPayment due upon receipt.",
+    "entities": {
+      "bank_account": null,
+      "routing_number": "bank routing numbers, sort codes, IBAN or SWIFT/BIC codes"
+    }
+  },
+  "data": {
+    "model": "clocked-1.0",
+    "entities": [],
+    "counts": {},
+    "threshold": 0.5,
+    "instructions_used": "default",
+    "mentions": {
+      "candidates": 0,
+      "variants": 0,
+      "reads": 0,
+      "verified": 0,
+      "occurrences": {
+        "read": 0,
+        "kept": 0
+      },
+      "rejected": {},
+      "spans": 0,
+      "ms": 0
+    },
+    "checks": {
+      "trimmed": 0,
+      "split": 0,
+      "rejected": {}
+    },
+    "timing": {
+      "read_ms": 15,
+      "total_ms": 17
+    }
+  },
+  "credits": 1
+}

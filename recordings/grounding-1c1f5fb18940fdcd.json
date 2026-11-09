@@ -1,0 +1,93 @@
+{
+  "endpoint": "grounding",
+  "payload": {
+    "documents": [
+      {
+        "id": "invoice",
+        "text": "Bayline Produce\nPortland ME\nINVOICE: BAY-55244\nDate: 15 Oct 2026\nBilled To: Harbor Street Kitchens\nCommissary, 410 Harbor St, Portland ME 04101\nPO Reference: PO-24140\n\n| Item Code | Description | Qty | Unit Price | Amount |\n| BP-AVO-48 | Hass avocados, 60 ct case | 30 | 52.00 | 1,560.00 |\n| BP-LIM-10 | Persian limes, 10 lb case | 6 | 38.50 | 231.00 |\n\nSubtotal: USD 1,791.00\nTax: 0.00\nTotal due: USD 1,791.00\nThank you for your business."
+      },
+      {
+        "id": "purchase-order",
+        "text": "Harbor Street Kitchens\nCommissary, 410 Harbor St, Portland ME 04101\nPURCHASE ORDER: PO-24140\nDate: 11 Oct 2026\nVendor: Bayline Produce, Portland ME\n\n| Item Code | Description | Qty | Unit Price |\n| BP-AVO-48 | Hass avocados, 48 ct case | 30 | 52.00 |\n| BP-LIM-10 | Persian limes, 10 lb case | 6 | 38.50 |\n\nAuthorized by: E. Davis"
+      },
+      {
+        "id": "receiving-note",
+        "text": "Harbor Street Kitchens\nCommissary, 410 Harbor St, Portland ME 04101\nRECEIVING NOTE: RN-8843\nPO Reference: PO-24140\nDelivery Date: 13 Oct 2026\nVendor: Bayline Produce\nDock Counter: M. Ruiz\n\n| Item Code | Description | Delivered | Refused | Accepted |\n| BP-AVO-48 | Hass avocados, 60 ct case | 30 | 0 | 30 |\n| BP-LIM-10 | Persian limes, 10 lb case | 6 | 0 | 6 |\n\nCondition on arrival: Note: vendor substitution, accepted pending buyer review."
+      },
+      {
+        "id": "paylock-ledger",
+        "text": "LEDGER FINDINGS:\n- Every line matches and the totals add up.\n\nDOCUMENT CONFLICTS:\n- The invoice says \"| BP-AVO-48 | Hass avocados, 60 ct case | 30 | 52.00 | 1,560.00 |\"; the purchase order says \"Harbor Street Kitchens\nCommissary, 410 Harbor St, Portland ME 04101\nPURCHASE ORDER: PO-24140\nDate: 11 Oct 2026\nVendor: Bayline Produce, Portland ME\n\n| Item Code | Description | Qty | Unit Price |\n| BP-AVO-48 | Hass avocados, 48 ct case | 30 | 52.00 |\n| BP-LIM-10 | Persian limes, 10 lb case | 6 | 38.50 |\n\nAuthorized by: E. Davis\"."
+      }
+    ],
+    "answer": "The invoice states \"| BP-AVO-48 | Hass avocados, 60 ct case | 30 | 52.00 | 1,560.00 |\", whereas the purchase order describes the item as \"Hass avocados, 48 ct",
+    "evidence": "all",
+    "instructions": "Check a note for an accounts-payable clerk against the invoice, the PO, the receiving note and the ledger findings. A sentence reporting what the invoice states is supported if the invoice says it. Statements that the invoice matches or that there are no conflicts are supported if the ledger findings report no discrepancies."
+  },
+  "data": {
+    "model": "clocked-1.0",
+    "grounded": 0.9081,
+    "ungrounded": 0.0919,
+    "verdict": "grounded",
+    "threshold": 0.5,
+    "instructions_used": "custom",
+    "documents": [
+      {
+        "id": "invoice",
+        "share": 0.9307,
+        "share_of_answer": 0.8451,
+        "claims": [
+          0
+        ]
+      },
+      {
+        "id": "paylock-ledger",
+        "share": 0.0394,
+        "share_of_answer": 0.0358,
+        "claims": []
+      },
+      {
+        "id": "purchase-order",
+        "share": 0.0176,
+        "share_of_answer": 0.016,
+        "claims": []
+      },
+      {
+        "id": "receiving-note",
+        "share": 0.0123,
+        "share_of_answer": 0.0112,
+        "claims": []
+      }
+    ],
+    "claims": [
+      {
+        "claim": "The invoice states \"| BP-AVO-48 | Hass avocados, 60 ct case | 30 | 52.00 | 1,560.00 |\", whereas the purchase order describes the item as \"Hass avocados, 48 ct",
+        "kind": "claim",
+        "counted": true,
+        "weight": 1,
+        "supported": 0.9081,
+        "contradicted": 0.0624,
+        "not_stated": 0.0154,
+        "not_a_claim": 0.0141,
+        "verdict": "supported",
+        "sources": {
+          "invoice": 0.9306,
+          "purchase-order": 0.0176,
+          "receiving-note": 0.0123,
+          "paylock-ledger": 0.0394
+        },
+        "source": "invoice"
+      }
+    ],
+    "unsupported_claims": [],
+    "not_claims": [],
+    "weakest_claim": {
+      "index": 0,
+      "supported": 0.9081
+    },
+    "timing": {
+      "read_ms": 94,
+      "total_ms": 97
+    }
+  },
+  "credits": 4
+}

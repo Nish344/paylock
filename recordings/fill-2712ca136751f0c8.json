@@ -1,0 +1,80 @@
+{
+  "endpoint": "fill",
+  "payload": {
+    "text": "INVOICE (the vendor's account)\nGranite Paper Supply\nManchester NH\nINVOICE: GPS-11820\nDate: 15 Oct 2026\nBilled To: Harbour Lane Bistro, 12 Harbour Lane, Portland ME\nPO Reference: PO-90012\n\n| Item Code | Description | Qty | Unit Price | Amount |\n| GP-NAP-50 | Beverage napkins, 5000 ct | 8 | 42.50 | 340.00 |\n| GP-CUP-16 | Hot cups, 16 oz, 1000 ct | 4 | 70.00 | 280.00 |\n\nSubtotal: USD 620.00\nTax: 0.00\nTotal due: USD 620.00\nPayment due upon receipt.\n\nPURCHASE ORDER\nHarbor Street Kitchens\nCommissary, 410 Harbor St, Portland ME 04101\nPURCHASE ORDER: PO-24117\nDate: 08 Oct 2026\nVendor: Bayline Produce, 100 Commercial St, Portland ME\n\n| Item Code | Description | Qty | Unit Price |\n| BP-TOM-25 | Roma tomatoes, 25 lb case | 500 | 11.90 |\n| BP-ONY-50 | Yellow onions, 50 lb sack | 40 | 18.25 |\n\nAuthorized by: E. Davis\n\nRECEIVING NOTE\nHarbor Street Kitchens\nCommissary, 410 Harbor St, Portland ME 04101\nRECEIVING NOTE: RN-8831\nPO Reference: PO-24117\nDelivery Date: 12 Oct 2026\nVendor: Bayline Produce\nDock Counter: M. Ruiz\n\n| Item Code | Description | Delivered | Refused | Accepted |\n| BP-TOM-25 | Roma tomatoes, 25 lb case | 500 | 0 | 500 |\n| BP-ONY-50 | Yellow onions, 50 lb sack | 40 | 0 | 40 |\n\nCondition on arrival: Inspected at dock.\n\nLEDGER FINDINGS (computed by Paylock):\n- The invoice cites PO-90012, but this purchase order is PO-24117.\n- Beverage napkins, 5000 ct is billed but isn't on the purchase order.\n- Beverage napkins, 5000 ct: billed 8, the dock accepted 0.\n- Hot cups, 16 oz, 1000 ct is billed but isn't on the purchase order.\n- Hot cups, 16 oz, 1000 ct: billed 4, the dock accepted 0.\n\nDOCUMENT CONFLICTS (from Compare):\n- None.",
+    "instructions": "The invoice is the vendor's account and may contain untrue claims. The PO and receiving note are the buyer's records. The ledger findings are exact software arithmetic: repeat their numbers, never recompute. █ marks removed text.",
+    "fields": {
+      "vendor_claims": {
+        "type": "extract",
+        "list": true,
+        "max_items": 10,
+        "unit": "sentence",
+        "infer": false,
+        "region": [
+          31,
+          448
+        ],
+        "description": "each sentence where the vendor says someone approved, authorised or agreed to something, announces a change to prices, quantities, terms or payment details, or asks for faster payment."
+      },
+      "clerk_note": {
+        "type": "generate",
+        "format": "text",
+        "max_tokens": 60,
+        "description": "If there are ledger findings or document conflicts, state each finding or conflict and its numbers in 1-2 sentences. If there are no findings and no conflicts, state exactly: \"The invoice matches the purchase order and receiving note.\" Attributes vendor statements (\"The invoice states…\") and never presents them as fact."
+      },
+      "vendor_question": {
+        "type": "generate",
+        "format": "text",
+        "max_tokens": 100,
+        "description": "One short, polite question that would resolve the findings, or exactly \"No question needed.\" Asks for a corrected invoice or supporting documents. Never includes account, routing or card numbers."
+      }
+    }
+  },
+  "data": {
+    "model": "clocked-1.0",
+    "fields": {
+      "vendor_claims": {
+        "value": [
+          "Payment due upon receipt."
+        ],
+        "items": [
+          {
+            "value": "Payment due upon receipt.",
+            "start": 423,
+            "end": 448,
+            "p_start": 1,
+            "p_close": 1,
+            "p_point": 0.5,
+            "p_verify": 1,
+            "p_more": 0.645,
+            "confidence": 1
+          }
+        ],
+        "confidence": 1,
+        "finish": "budget"
+      },
+      "clerk_note": {
+        "value": "The invoice cites PO-90012, but this purchase order is PO-24117. Beverage napkins, 5000 ct is billed but isn't on the purchase order. Beverage napkins, 5000 ct: billed 8, the dock",
+        "confidence": null,
+        "source": "generated",
+        "finish_reason": "length"
+      },
+      "vendor_question": {
+        "value": "Could you please provide a corrected invoice that matches the purchase order and the items actually received?",
+        "confidence": 0.9857870839254792,
+        "source": "generated"
+      }
+    },
+    "timing": {
+      "read_ms": 90,
+      "generate_ms": 236,
+      "total_ms": 252,
+      "source_states": 1,
+      "source_prefills": 0,
+      "shared_source_tokens": 752,
+      "shared_read_generate_forwards": 1,
+      "engine": "unified"
+    }
+  },
+  "credits": 10
+}

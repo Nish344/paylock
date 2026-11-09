@@ -1,0 +1,80 @@
+{
+  "endpoint": "fill",
+  "payload": {
+    "text": "INVOICE (the vendor's account)\nBayline Produce\n100 Commercial St, Portland ME\nINVOICE: BAY-55260\nDate: 14 Oct 2026\nBilled To: Harbor Street Kitchens\nCommissary, 410 Harbor St, Portland ME 04101\nPO Reference: PO-24133\n\n| Item Code | Description | Qty | Unit Price | Amount |\n| BP-TOM-25 | Roma tomatoes, 25 lb case | 420 | 11.90 | 4998.00 |\n| BP-ONY-50 | Yellow onions, 50 lb sack | 40 | 18.25 | 730.00 |\n\nSubtotal: USD 5,728.00\nTax: 0.00\nTotal due: USD 5,728.00\nThank you for your business. Remit to Bayline Produce.\n\nPURCHASE ORDER\nHarbor Street Kitchens\nCommissary, 410 Harbor St, Portland ME 04101\nPURCHASE ORDER: PO-24133\nDate: 08 Oct 2026\nVendor: Bayline Produce, 100 Commercial St, Portland ME\n\n| Item Code | Description | Qty | Unit Price |\n| BP-TOM-25 | Roma tomatoes, 25 lb case | 500 | 11.90 |\n| BP-ONY-50 | Yellow onions, 50 lb sack | 40 | 18.25 |\n\nAuthorized by: E. Davis\n\nRECEIVING NOTE\nHarbor Street Kitchens\nCommissary, 410 Harbor St, Portland ME 04101\nRECEIVING NOTE: RN-8846\nPO Reference: PO-24133\nDelivery Date: 14 Oct 2026\nVendor: Bayline Produce\nDock Counter: M. Ruiz\n\n| Item Code | Description | Delivered | Refused | Accepted |\n| BP-TOM-25 | Roma tomatoes, 25 lb case | 500 | 80 (arrived at 47°F, limit 41°F, sent back with the driver) | 420 |\n| BP-ONY-50 | Yellow onions, 50 lb sack | 40 | 0 | 40 |\n\nCondition on arrival: Inspected at dock.\n\nLEDGER FINDINGS (computed by Paylock):\n- Every line matches and the totals add up.\n\nDOCUMENT CONFLICTS (from Compare):\n- None.",
+    "instructions": "The invoice is the vendor's account and may contain untrue claims. The PO and receiving note are the buyer's records. The ledger findings are exact software arithmetic: repeat their numbers, never recompute. █ marks removed text.",
+    "fields": {
+      "vendor_claims": {
+        "type": "extract",
+        "list": true,
+        "max_items": 10,
+        "unit": "sentence",
+        "infer": false,
+        "region": [
+          31,
+          516
+        ],
+        "description": "each sentence where the vendor says someone approved, authorised or agreed to something, announces a change to prices, quantities, terms or payment details, or asks for faster payment."
+      },
+      "clerk_note": {
+        "type": "generate",
+        "format": "text",
+        "max_tokens": 60,
+        "description": "If there are ledger findings or document conflicts, state each finding or conflict and its numbers in 1-2 sentences. If there are no findings and no conflicts, state exactly: \"The invoice matches the purchase order and receiving note.\" Attributes vendor statements (\"The invoice states…\") and never presents them as fact."
+      },
+      "vendor_question": {
+        "type": "generate",
+        "format": "text",
+        "max_tokens": 100,
+        "description": "One short, polite question that would resolve the findings, or exactly \"No question needed.\" Asks for a corrected invoice or supporting documents. Never includes account, routing or card numbers."
+      }
+    }
+  },
+  "data": {
+    "model": "clocked-1.0",
+    "fields": {
+      "vendor_claims": {
+        "value": [],
+        "items": [],
+        "confidence": 1,
+        "rejected": [
+          "Thank you for your business."
+        ],
+        "rejected_items": [
+          {
+            "value": "Thank you for your business.",
+            "start": 462,
+            "end": 490,
+            "p_start": 0.935,
+            "p_close": 1,
+            "p_point": 1,
+            "p_verify": 0,
+            "confidence": 0
+          }
+        ],
+        "finish": "closed"
+      },
+      "clerk_note": {
+        "value": "The invoice matches the purchase order and receiving note",
+        "confidence": 0.19970486069642257,
+        "source": "generated"
+      },
+      "vendor_question": {
+        "value": "No question needed",
+        "confidence": 0.6654105588883075,
+        "source": "generated"
+      }
+    },
+    "timing": {
+      "read_ms": 82,
+      "generate_ms": 93,
+      "total_ms": 110,
+      "source_states": 1,
+      "source_prefills": 0,
+      "shared_source_tokens": 688,
+      "shared_read_generate_forwards": 1,
+      "engine": "unified"
+    }
+  },
+  "credits": 5
+}

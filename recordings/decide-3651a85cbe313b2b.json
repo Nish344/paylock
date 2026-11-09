@@ -1,0 +1,38 @@
+{
+  "endpoint": "decide",
+  "payload": {
+    "state": "INVOICE (from the vendor)\nNorthfield Dairy\nAugusta ME\nINVOICE: ND-7714\nDate: 15 Oct 2026\nBilled To: Harbor Street Kitchens\nCommissary, 410 Harbor St, Portland ME 04101\nPO Reference: PO-24126\n\n| Item Code | Description | Qty | Unit Price | Amount |\n| NF-CRM-1G | Heavy cream, 1 gal | 60 | 15.10 | 906.00 |\n| NF-BUT-36 | Salted butter, 36 lb case | 10 | 112.00 | 1,120.00 |\n\nSubtotal: USD 2,026.00\nTax: 0.00\nTotal due: USD 2,026.00\nNote: Cream pricing reflects the October dairy surcharge agreed with your buyer.\nThank you for choosing Northfield Dairy.\n\nPURCHASE ORDER\nHarbor Street Kitchens\nCommissary, 410 Harbor St, Portland ME 04101\nPURCHASE ORDER: PO-24126\nDate: 09 Oct 2026\nVendor: Northfield Dairy, Augusta ME\n\n| Item Code | Description | Qty | Unit Price |\n| NF-CRM-1G | Heavy cream, 1 gal | 60 | 14.20 |\n| NF-BUT-36 | Salted butter, 36 lb case | 10 | 112.00 |\n\nAuthorized by: E. Davis\n\nRECEIVING NOTE\nHarbor Street Kitchens\nCommissary, 410 Harbor St, Portland ME 04101\nRECEIVING NOTE: RN-8838\nPO Reference: PO-24126\nDelivery Date: 13 Oct 2026\nVendor: Northfield Dairy\nDock Counter: M. Ruiz\n\n| Item Code | Description | Delivered | Refused | Accepted |\n| NF-CRM-1G | Heavy cream, 1 gal | 60 | 0 | 60 |\n| NF-BUT-36 | Salted butter, 36 lb case | 10 | 0 | 10 |\n\nCondition on arrival: Temperature verified 38°F.",
+    "instructions": "You are an accounts-payable reviewer reading the vendor's invoice against the buyer's PO and receiving note; █ marks removed text.",
+    "questions": {
+      "recommendation": {
+        "type": "choice",
+        "instructions": "Recommend PAY, HOLD, or REJECT for this invoice.",
+        "criteria": {
+          "PAY": "The invoice is for goods on this PO that the receiving note shows were accepted, at the agreed prices.",
+          "HOLD": "Something has to be resolved with a person or the vendor before paying.",
+          "REJECT": "The invoice isn't for this buyer or this PO, or bills only goods that were never ordered."
+        }
+      }
+    }
+  },
+  "data": {
+    "model": "clocked-1.0",
+    "answers": {
+      "recommendation": {
+        "type": "choice",
+        "choice": "HOLD",
+        "probabilities": {
+          "PAY": 0.0132,
+          "HOLD": 0.9758,
+          "REJECT": 0.0109
+        },
+        "confidence": 0.9637
+      }
+    },
+    "usage": {
+      "input_tokens": 574,
+      "output_tokens": 3
+    }
+  },
+  "credits": 1
+}

@@ -1,0 +1,74 @@
+{
+  "endpoint": "grounding",
+  "payload": {
+    "documents": [
+      {
+        "id": "purchase-order",
+        "text": "Harbor Street Kitchens\nCommissary, 410 Harbor St, Portland ME 04101\nPURCHASE ORDER: PO-24126\nDate: 09 Oct 2026\nVendor: Northfield Dairy, Augusta ME\n\n| Item Code | Description | Qty | Unit Price |\n| NF-CRM-1G | Heavy cream, 1 gal | 60 | 14.20 |\n| NF-BUT-36 | Salted butter, 36 lb case | 10 | 112.00 |\n\nAuthorized by: E. Davis"
+      },
+      {
+        "id": "receiving-note",
+        "text": "Harbor Street Kitchens\nCommissary, 410 Harbor St, Portland ME 04101\nRECEIVING NOTE: RN-8838\nPO Reference: PO-24126\nDelivery Date: 13 Oct 2026\nVendor: Northfield Dairy\nDock Counter: M. Ruiz\n\n| Item Code | Description | Delivered | Refused | Accepted |\n| NF-CRM-1G | Heavy cream, 1 gal | 60 | 0 | 60 |\n| NF-BUT-36 | Salted butter, 36 lb case | 10 | 0 | 10 |\n\nCondition on arrival: Temperature verified 38°F."
+      }
+    ],
+    "answer": "Cream pricing reflects the October dairy surcharge agreed with your buyer.",
+    "claims": [
+      "Cream pricing reflects the October dairy surcharge agreed with your buyer."
+    ],
+    "evidence": "all",
+    "instructions": "These are statements taken from a vendor's invoice. Decide whether the buyer's own records establish each one. An approval, agreement, price change, payment instruction or deadline that these records don't state is not_stated, even if it sounds plausible."
+  },
+  "data": {
+    "model": "clocked-1.0",
+    "grounded": 0.0023,
+    "ungrounded": 0.9977,
+    "verdict": "ungrounded",
+    "threshold": 0.5,
+    "instructions_used": "custom",
+    "documents": [
+      {
+        "id": "purchase-order",
+        "share": 0,
+        "share_of_answer": 0.0014,
+        "claims": []
+      },
+      {
+        "id": "receiving-note",
+        "share": 0,
+        "share_of_answer": 0.0009,
+        "claims": []
+      }
+    ],
+    "claims": [
+      {
+        "claim": "Cream pricing reflects the October dairy surcharge agreed with your buyer.",
+        "kind": "claim",
+        "counted": true,
+        "weight": 1,
+        "supported": 0.0023,
+        "contradicted": 0.0014,
+        "not_stated": 0.9948,
+        "not_a_claim": 0.0015,
+        "verdict": "not_stated",
+        "sources": {
+          "purchase-order": 0.5961,
+          "receiving-note": 0.4039
+        },
+        "source": null
+      }
+    ],
+    "unsupported_claims": [
+      0
+    ],
+    "not_claims": [],
+    "weakest_claim": {
+      "index": 0,
+      "supported": 0.0023
+    },
+    "timing": {
+      "read_ms": 101,
+      "total_ms": 102
+    }
+  },
+  "credits": 3
+}

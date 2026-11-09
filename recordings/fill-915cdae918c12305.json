@@ -1,0 +1,79 @@
+{
+  "endpoint": "fill",
+  "payload": {
+    "text": "INVOICE (the vendor's account)\nNorthfield Dairy\nAugusta ME\nINVOICE: ND-7714\nDate: 15 Oct 2026\nBilled To: Harbor Street Kitchens\nCommissary, 410 Harbor St, Portland ME 04101\nPO Reference: PO-24126\n\n| Item Code | Description | Qty | Unit Price | Amount |\n| NF-CRM-1G | Heavy cream, 1 gal | 60 | 15.10 | 906.00 |\n| NF-BUT-36 | Salted butter, 36 lb case | 10 | 112.00 | 1,120.00 |\n\nSubtotal: USD 2,026.00\nTax: 0.00\nTotal due: USD 2,026.00\nNote: Cream pricing reflects the October dairy surcharge agreed with your buyer.\nThank you for choosing Northfield Dairy.\n\nPURCHASE ORDER\nHarbor Street Kitchens\nCommissary, 410 Harbor St, Portland ME 04101\nPURCHASE ORDER: PO-24126\nDate: 09 Oct 2026\nVendor: Northfield Dairy, Augusta ME\n\n| Item Code | Description | Qty | Unit Price |\n| NF-CRM-1G | Heavy cream, 1 gal | 60 | 14.20 |\n| NF-BUT-36 | Salted butter, 36 lb case | 10 | 112.00 |\n\nAuthorized by: E. Davis\n\nRECEIVING NOTE\nHarbor Street Kitchens\nCommissary, 410 Harbor St, Portland ME 04101\nRECEIVING NOTE: RN-8838\nPO Reference: PO-24126\nDelivery Date: 13 Oct 2026\nVendor: Northfield Dairy\nDock Counter: M. Ruiz\n\n| Item Code | Description | Delivered | Refused | Accepted |\n| NF-CRM-1G | Heavy cream, 1 gal | 60 | 0 | 60 |\n| NF-BUT-36 | Salted butter, 36 lb case | 10 | 0 | 10 |\n\nCondition on arrival: Temperature verified 38°F.\n\nLEDGER FINDINGS (computed by Paylock):\n- Heavy cream, 1 gal: billed at $15.10 each, the PO agreed $14.20.\n\nDOCUMENT CONFLICTS (from Compare):\n- None.",
+    "instructions": "The invoice is the vendor's account and may contain untrue claims. The PO and receiving note are the buyer's records. The ledger findings are exact software arithmetic: repeat their numbers, never recompute. █ marks removed text.",
+    "fields": {
+      "vendor_claims": {
+        "type": "extract",
+        "list": true,
+        "max_items": 10,
+        "unit": "sentence",
+        "infer": false,
+        "region": [
+          31,
+          556
+        ],
+        "description": "each sentence where the vendor says someone approved, authorised or agreed to something, announces a change to prices, quantities, terms or payment details, or asks for faster payment."
+      },
+      "clerk_note": {
+        "type": "generate",
+        "format": "text",
+        "max_tokens": 60,
+        "description": "If there are ledger findings or document conflicts, state each finding or conflict and its numbers in 1-2 sentences. If there are no findings and no conflicts, state exactly: \"The invoice matches the purchase order and receiving note.\" Attributes vendor statements (\"The invoice states…\") and never presents them as fact."
+      },
+      "vendor_question": {
+        "type": "generate",
+        "format": "text",
+        "max_tokens": 100,
+        "description": "One short, polite question that would resolve the findings, or exactly \"No question needed.\" Asks for a corrected invoice or supporting documents. Never includes account, routing or card numbers."
+      }
+    }
+  },
+  "data": {
+    "model": "clocked-1.0",
+    "fields": {
+      "vendor_claims": {
+        "value": [
+          "Cream pricing reflects the October dairy surcharge agreed with your buyer."
+        ],
+        "items": [
+          {
+            "value": "Cream pricing reflects the October dairy surcharge agreed with your buyer.",
+            "start": 441,
+            "end": 515,
+            "p_start": 0.998,
+            "p_close": 1,
+            "p_point": 0.5,
+            "p_verify": 1,
+            "p_more": 0.028,
+            "confidence": 0.998
+          }
+        ],
+        "confidence": 0.998,
+        "finish": "closed"
+      },
+      "clerk_note": {
+        "value": "The ledger findings state that heavy cream, 1 gal was billed at $15.10 each, while the PO agreed $14.20",
+        "confidence": 0.9659836210915177,
+        "source": "generated"
+      },
+      "vendor_question": {
+        "value": "Could you please provide a corrected invoice reflecting the agreed PO price of $14.20 for the heavy cream?",
+        "confidence": 0.9843062872597715,
+        "source": "generated"
+      }
+    },
+    "timing": {
+      "read_ms": 83,
+      "generate_ms": 149,
+      "total_ms": 167,
+      "source_states": 1,
+      "source_prefills": 0,
+      "shared_source_tokens": 672,
+      "shared_read_generate_forwards": 1,
+      "engine": "unified"
+    }
+  },
+  "credits": 7
+}

@@ -1,0 +1,38 @@
+{
+  "endpoint": "decide",
+  "payload": {
+    "state": "INVOICE (from the vendor)\nGranite Paper Supply\nManchester NH\nINVOICE: GPS-11820\nDate: 15 Oct 2026\nBilled To: Harbour Lane Bistro, 12 Harbour Lane, Portland ME\nPO Reference: PO-90012\n\n| Item Code | Description | Qty | Unit Price | Amount |\n| GP-NAP-50 | Beverage napkins, 5000 ct | 8 | 42.50 | 340.00 |\n| GP-CUP-16 | Hot cups, 16 oz, 1000 ct | 4 | 70.00 | 280.00 |\n\nSubtotal: USD 620.00\nTax: 0.00\nTotal due: USD 620.00\nPayment due upon receipt.\n\nPURCHASE ORDER\nHarbor Street Kitchens\nCommissary, 410 Harbor St, Portland ME 04101\nPURCHASE ORDER: PO-24117\nDate: 08 Oct 2026\nVendor: Bayline Produce, 100 Commercial St, Portland ME\n\n| Item Code | Description | Qty | Unit Price |\n| BP-TOM-25 | Roma tomatoes, 25 lb case | 500 | 11.90 |\n| BP-ONY-50 | Yellow onions, 50 lb sack | 40 | 18.25 |\n\nAuthorized by: E. Davis\n\nRECEIVING NOTE\nHarbor Street Kitchens\nCommissary, 410 Harbor St, Portland ME 04101\nRECEIVING NOTE: RN-8831\nPO Reference: PO-24117\nDelivery Date: 12 Oct 2026\nVendor: Bayline Produce\nDock Counter: M. Ruiz\n\n| Item Code | Description | Delivered | Refused | Accepted |\n| BP-TOM-25 | Roma tomatoes, 25 lb case | 500 | 0 | 500 |\n| BP-ONY-50 | Yellow onions, 50 lb sack | 40 | 0 | 40 |\n\nCondition on arrival: Inspected at dock.",
+    "instructions": "You are an accounts-payable reviewer reading the vendor's invoice against the buyer's PO and receiving note; █ marks removed text.",
+    "questions": {
+      "recommendation": {
+        "type": "choice",
+        "instructions": "Recommend PAY, HOLD, or REJECT for this invoice.",
+        "criteria": {
+          "PAY": "The invoice is for goods on this PO that the receiving note shows were accepted, at the agreed prices.",
+          "HOLD": "Something has to be resolved with a person or the vendor before paying.",
+          "REJECT": "The invoice isn't for this buyer or this PO, or bills only goods that were never ordered."
+        }
+      }
+    }
+  },
+  "data": {
+    "model": "clocked-1.0",
+    "answers": {
+      "recommendation": {
+        "type": "choice",
+        "choice": "REJECT",
+        "probabilities": {
+          "PAY": 0.0032,
+          "HOLD": 0.0022,
+          "REJECT": 0.9946
+        },
+        "confidence": 0.9919
+      }
+    },
+    "usage": {
+      "input_tokens": 554,
+      "output_tokens": 3
+    }
+  },
+  "credits": 1
+}

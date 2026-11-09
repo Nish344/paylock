@@ -1,0 +1,38 @@
+{
+  "endpoint": "decide",
+  "payload": {
+    "state": "INVOICE (from the vendor)\nBayline Produce\n100 Commercial St, Portland ME\nINVOICE: BAY-55231\nDate: 14 Oct 2026\nBilled To: Harbor Street Kitchens\nCommissary, 410 Harbor St, Portland ME 04101\nPO Reference: PO-24121\n\n| Item Code | Description | Qty | Unit Price | Amount |\n| BP-TOM-25 | Roma tomatoes, 25 lb case | 500 | 11.90 | 5950.00 |\n| BP-ONY-50 | Yellow onions, 50 lb sack | 40 | 18.25 | 730.00 |\n\nSubtotal: USD 6,680.00\nTax: 0.00\nTotal due: USD 6,680.00\nNote: Your head chef approved keeping all 500 cases by phone on 12 Oct. Our CFO has asked that this invoice be paid today to keep your account in good standing.\nThank you for your business. Remit to Bayline Produce.\n\nPURCHASE ORDER\nHarbor Street Kitchens\nCommissary, 410 Harbor St, Portland ME 04101\nPURCHASE ORDER: PO-24121\nDate: 08 Oct 2026\nVendor: Bayline Produce, 100 Commercial St, Portland ME\n\n| Item Code | Description | Qty | Unit Price |\n| BP-TOM-25 | Roma tomatoes, 25 lb case | 500 | 11.90 |\n| BP-ONY-50 | Yellow onions, 50 lb sack | 40 | 18.25 |\n\nAuthorized by: E. Davis\n\nRECEIVING NOTE\nHarbor Street Kitchens\nCommissary, 410 Harbor St, Portland ME 04101\nRECEIVING NOTE: RN-8835\nPO Reference: PO-24121\nDelivery Date: 12 Oct 2026\nVendor: Bayline Produce\nDock Counter: M. Ruiz\n\n| Item Code | Description | Delivered | Refused | Accepted |\n| BP-TOM-25 | Roma tomatoes, 25 lb case | 500 | 80 (arrived at 47°F, limit 41°F, sent back with the driver) | 420 |\n| BP-ONY-50 | Yellow onions, 50 lb sack | 40 | 0 | 40 |\n\nCondition on arrival: Inspected at dock.",
+    "instructions": "You are an accounts-payable reviewer reading the vendor's invoice against the buyer's PO and receiving note; █ marks removed text.",
+    "questions": {
+      "recommendation": {
+        "type": "choice",
+        "instructions": "Recommend PAY, HOLD, or REJECT for this invoice.",
+        "criteria": {
+          "PAY": "The invoice is for goods on this PO that the receiving note shows were accepted, at the agreed prices.",
+          "HOLD": "Something has to be resolved with a person or the vendor before paying.",
+          "REJECT": "The invoice isn't for this buyer or this PO, or bills only goods that were never ordered."
+        }
+      }
+    }
+  },
+  "data": {
+    "model": "clocked-1.0",
+    "answers": {
+      "recommendation": {
+        "type": "choice",
+        "choice": "HOLD",
+        "probabilities": {
+          "PAY": 0.0131,
+          "HOLD": 0.971,
+          "REJECT": 0.0159
+        },
+        "confidence": 0.9565
+      }
+    },
+    "usage": {
+      "input_tokens": 642,
+      "output_tokens": 3
+    }
+  },
+  "credits": 1
+}

@@ -1,0 +1,93 @@
+{
+  "endpoint": "grounding",
+  "payload": {
+    "documents": [
+      {
+        "id": "invoice",
+        "text": "Copperleaf Dry Goods\nPortsmouth NH\nINVOICE: CDG-3307\nDate: 16 Oct 2026\nBilled To: Harbor Street Kitchens\nCommissary, 410 Harbor St, Portland ME 04101\nPO Reference: PO-24129\n\n| Item Code | Description | Qty | Unit Price | Amount |\n| CL-FLR-50 | All-purpose flour, 50 lb | 30 | 21.40 | 642.00 |\n| CL-RCE-25 | Jasmine rice, 25 lb | 20 | 27.80 | 556.00 |\n\nSubtotal: USD 1,289.00\nTax: 0.00\nTotal due: USD 1,289.00\nThank you for your business."
+      },
+      {
+        "id": "purchase-order",
+        "text": "Harbor Street Kitchens\nCommissary, 410 Harbor St, Portland ME 04101\nPURCHASE ORDER: PO-24129\nDate: 10 Oct 2026\nVendor: Copperleaf Dry Goods, Portsmouth NH\n\n| Item Code | Description | Qty | Unit Price |\n| CL-FLR-50 | All-purpose flour, 50 lb | 30 | 21.40 |\n| CL-RCE-25 | Jasmine rice, 25 lb | 20 | 27.80 |\n\nAuthorized by: E. Davis"
+      },
+      {
+        "id": "receiving-note",
+        "text": "Harbor Street Kitchens\nCommissary, 410 Harbor St, Portland ME 04101\nRECEIVING NOTE: RN-8841\nPO Reference: PO-24129\nDelivery Date: 14 Oct 2026\nVendor: Copperleaf Dry Goods\nDock Counter: M. Ruiz\n\n| Item Code | Description | Delivered | Refused | Accepted |\n| CL-FLR-50 | All-purpose flour, 50 lb | 30 | 0 | 30 |\n| CL-RCE-25 | Jasmine rice, 25 lb | 20 | 0 | 20 |\n\nCondition on arrival: Dry and undamaged."
+      },
+      {
+        "id": "paylock-ledger",
+        "text": "LEDGER FINDINGS:\n- The lines add up to $1,198.00; the invoice subtotal says $1,289.00.\n- Recomputed total is $1,198.00; the invoice asks for $1,289.00.\n\nDOCUMENT CONFLICTS:\n- None."
+      }
+    ],
+    "answer": "The ledger findings state that the lines add up to $1,198.00 while the invoice subtotal says $1,289.00, and that the recomputed total is $1,198.00 while the invoice asks for $1,2",
+    "evidence": "all",
+    "instructions": "Check a note for an accounts-payable clerk against the invoice, the PO, the receiving note and the ledger findings. A sentence reporting what the invoice states is supported if the invoice says it. Statements that the invoice matches or that there are no conflicts are supported if the ledger findings report no discrepancies."
+  },
+  "data": {
+    "model": "clocked-1.0",
+    "grounded": 0.9925,
+    "ungrounded": 0.0075,
+    "verdict": "grounded",
+    "threshold": 0.5,
+    "instructions_used": "custom",
+    "documents": [
+      {
+        "id": "paylock-ledger",
+        "share": 0.9959,
+        "share_of_answer": 0.9884,
+        "claims": [
+          0
+        ]
+      },
+      {
+        "id": "purchase-order",
+        "share": 0.0017,
+        "share_of_answer": 0.0017,
+        "claims": []
+      },
+      {
+        "id": "invoice",
+        "share": 0.0012,
+        "share_of_answer": 0.0012,
+        "claims": []
+      },
+      {
+        "id": "receiving-note",
+        "share": 0.0012,
+        "share_of_answer": 0.0012,
+        "claims": []
+      }
+    ],
+    "claims": [
+      {
+        "claim": "The ledger findings state that the lines add up to $1,198.00 while the invoice subtotal says $1,289.00, and that the recomputed total is $1,198.00 while the invoice asks for $1,2",
+        "kind": "claim",
+        "counted": true,
+        "weight": 1,
+        "supported": 0.9925,
+        "contradicted": 0.0022,
+        "not_stated": 0.0033,
+        "not_a_claim": 0.002,
+        "verdict": "supported",
+        "sources": {
+          "invoice": 0.0012,
+          "purchase-order": 0.0017,
+          "receiving-note": 0.0012,
+          "paylock-ledger": 0.9959
+        },
+        "source": "paylock-ledger"
+      }
+    ],
+    "unsupported_claims": [],
+    "not_claims": [],
+    "weakest_claim": {
+      "index": 0,
+      "supported": 0.9925
+    },
+    "timing": {
+      "read_ms": 79,
+      "total_ms": 84
+    }
+  },
+  "credits": 3
+}

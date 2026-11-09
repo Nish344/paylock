@@ -1,0 +1,293 @@
+{
+  "endpoint": "extract",
+  "payload": {
+    "text": "Northfield Dairy\nAugusta ME\nINVOICE: ND-7714\nDate: 15 Oct 2026\nBilled To: Harbor Street Kitchens\nCommissary, 410 Harbor St, Portland ME 04101\nPO Reference: PO-24126\n\n| Item Code | Description | Qty | Unit Price | Amount |\n| NF-CRM-1G | Heavy cream, 1 gal | 60 | 15.10 | 906.00 |\n| NF-BUT-36 | Salted butter, 36 lb case | 10 | 112.00 | 1,120.00 |\n\nSubtotal: USD 2,026.00\nTax: 0.00\nTotal due: USD 2,026.00\nNote: Cream pricing reflects the October dairy surcharge agreed with your buyer.\nThank you for choosing Northfield Dairy.",
+    "fields": {
+      "po_reference": "purchase order number cited on the invoice",
+      "lines": {
+        "description": "invoice line items",
+        "list": true,
+        "row_anchor": "item_code",
+        "max_items": 20,
+        "fields": {
+          "item_code": "item code or product identifier",
+          "description": "item description",
+          "quantity": "quantity billed",
+          "unit_price": "unit price",
+          "amount": "line total amount"
+        }
+      },
+      "subtotal": "subtotal amount",
+      "tax": "tax amount",
+      "total": "total due amount"
+    }
+  },
+  "data": {
+    "model": "clocked-1.0",
+    "fields": {
+      "po_reference": {
+        "value": "PO-24126",
+        "start": 156,
+        "end": 164,
+        "confidence": 0.999999999733419,
+        "p_verify": 0.999999999733419
+      },
+      "subtotal": {
+        "value": "2,026.00",
+        "start": 361,
+        "end": 369,
+        "confidence": 0.9999999987276518,
+        "p_verify": 0.9999999987276518
+      },
+      "tax": {
+        "value": "0.00",
+        "start": 339,
+        "end": 343,
+        "confidence": 0.9999999997294167,
+        "p_verify": 0.9999999997294167
+      },
+      "total": {
+        "value": "USD 2,026.00",
+        "start": 357,
+        "end": 369,
+        "confidence": 0.9999999970835438,
+        "p_verify": 0.9999999970835438
+      },
+      "lines": {
+        "value": [
+          {
+            "item_code": "NF-CRM-1G",
+            "description": "Heavy cream, 1 gal",
+            "quantity": "60",
+            "unit_price": "15.10",
+            "amount": "906.00"
+          },
+          {
+            "item_code": "NF-BUT-36",
+            "description": "Salted butter, 36 lb case",
+            "quantity": "10",
+            "unit_price": "112.00",
+            "amount": "1,120.00"
+          }
+        ],
+        "items": [
+          {
+            "start": 168,
+            "end": 279,
+            "fields": {
+              "item_code": {
+                "value": "NF-CRM-1G",
+                "start": 224,
+                "end": 233,
+                "confidence": 0.999999998538339,
+                "p_verify": 0.999999998538339
+              },
+              "description": {
+                "value": "Heavy cream, 1 gal",
+                "start": 236,
+                "end": 254,
+                "p_start": 1,
+                "p_close": 1,
+                "p_point": 0.5,
+                "p_verify": 1,
+                "confidence": 1
+              },
+              "quantity": {
+                "value": "60",
+                "start": 257,
+                "end": 259,
+                "p_start": 1,
+                "p_close": 1,
+                "p_point": 1,
+                "p_verify": 1,
+                "confidence": 1
+              },
+              "unit_price": {
+                "value": "15.10",
+                "start": 262,
+                "end": 267,
+                "p_start": 1,
+                "p_close": 1,
+                "p_point": 0.819,
+                "p_verify": 1,
+                "alternatives": [
+                  {
+                    "value": "1",
+                    "start": 249,
+                    "p_verify": 0
+                  },
+                  {
+                    "value": "10",
+                    "start": 265,
+                    "p_verify": 0
+                  }
+                ],
+                "confidence": 1
+              },
+              "amount": {
+                "value": "906.00",
+                "start": 270,
+                "end": 276,
+                "p_start": 1,
+                "p_close": 1,
+                "p_point": 1,
+                "p_verify": 1,
+                "confidence": 1
+              }
+            }
+          },
+          {
+            "start": 279,
+            "end": 345,
+            "fields": {
+              "item_code": {
+                "value": "NF-BUT-36",
+                "start": 281,
+                "end": 290,
+                "confidence": 0.999999998051808,
+                "p_verify": 0.999999998051808
+              },
+              "description": {
+                "value": "Salted butter, 36 lb case",
+                "start": 293,
+                "end": 318,
+                "p_start": 1,
+                "p_close": 1,
+                "p_point": 0.5,
+                "p_verify": 1,
+                "confidence": 1
+              },
+              "quantity": {
+                "value": "10",
+                "start": 321,
+                "end": 323,
+                "p_start": 1,
+                "p_close": 1,
+                "p_point": 0.84,
+                "p_verify": 1,
+                "alternatives": [
+                  {
+                    "value": "1",
+                    "start": 335,
+                    "p_verify": 0
+                  },
+                  {
+                    "value": "112.00",
+                    "start": 326,
+                    "p_verify": 0
+                  }
+                ],
+                "confidence": 1
+              },
+              "unit_price": {
+                "value": "112.00",
+                "start": 326,
+                "end": 332,
+                "p_start": 1,
+                "p_close": 1,
+                "p_point": 0.626,
+                "p_verify": 1,
+                "alternatives": [
+                  {
+                    "value": "1,120.00",
+                    "start": 335,
+                    "p_verify": 0
+                  },
+                  {
+                    "value": "120.00",
+                    "start": 337,
+                    "p_verify": 0
+                  }
+                ],
+                "confidence": 1
+              },
+              "amount": {
+                "value": "1,120.00",
+                "start": 335,
+                "end": 343,
+                "p_start": 1,
+                "p_close": 1,
+                "p_point": 0.447,
+                "p_verify": 1,
+                "alternatives": [
+                  {
+                    "value": "112.00",
+                    "start": 326,
+                    "p_verify": 0
+                  },
+                  {
+                    "value": "120.00",
+                    "start": 337,
+                    "p_verify": 0
+                  }
+                ],
+                "confidence": 1
+              }
+            }
+          }
+        ],
+        "source": "extracted",
+        "row_anchor": "item_code"
+      }
+    },
+    "timing": {
+      "read_ms": 264,
+      "forwards": {
+        "fields": [
+          9,
+          0
+        ],
+        "records": [
+          8,
+          0
+        ]
+      },
+      "stages": {
+        "fields": {
+          "reader": "recognition",
+          "doc": 0,
+          "branches": 1,
+          "generate": 116,
+          "locate": 0,
+          "verify": 24,
+          "assemble": 0
+        },
+        "cells": {
+          "doc": 0,
+          "point": 26,
+          "resolve": 18,
+          "extend": 0,
+          "contest": 29,
+          "lists": 0,
+          "verify": 0
+        }
+      },
+      "records": {
+        "variant": "A",
+        "listing_ms": 0,
+        "starts_ms": 45,
+        "cells_ms": 75,
+        "forwards": {
+          "listing": [
+            0,
+            0
+          ],
+          "starts": [
+            4,
+            0
+          ],
+          "cells": [
+            4,
+            0
+          ]
+        },
+        "records": 2,
+        "cells": 8,
+        "explicit": 0
+      },
+      "total_ms": 264,
+      "server_ms": 267
+    }
+  },
+  "credits": 11
+}
