@@ -85,7 +85,7 @@ interface SpanValue {
 export function verifySpan(
   text: string,
   field?: {
-    value?: string | number | null;
+    value?: unknown;
     start?: number;
     end?: number;
   }
@@ -375,3 +375,4 @@ export function buildLedger(
     used,
   };
 }
+

@@ -354,3 +354,4 @@ describe("lib/ledger", () => {
     expect(parseUsNumber("1240,50")).toBeNull();
   });
 });
+

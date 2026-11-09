@@ -125,14 +125,14 @@ export async function callClocked<T>(
   // 1. Replay mode
   if (mode === "replay") {
     try {
-      if (!fs.existsSync(recordingFilePath)) {
+      if (!fs.existsSync(/*turbopackIgnore: true*/ recordingFilePath)) {
         return {
           ok: false,
           error: `Replay recording not found: ${normalizedName}-${hash}.json`,
           replayed: true,
         };
       }
-      const raw = fs.readFileSync(recordingFilePath, "utf-8");
+      const raw = fs.readFileSync(/*turbopackIgnore: true*/ recordingFilePath, "utf-8");
       const saved = JSON.parse(raw);
       return {
         ok: true,
@@ -211,11 +211,11 @@ export async function callClocked<T>(
           // Record if in record mode
           if (mode === "record") {
             try {
-              if (!fs.existsSync(recDir)) {
-                fs.mkdirSync(recDir, { recursive: true });
+              if (!fs.existsSync(/*turbopackIgnore: true*/ recDir)) {
+                fs.mkdirSync(/*turbopackIgnore: true*/ recDir, { recursive: true });
               }
               fs.writeFileSync(
-                recordingFilePath,
+                /*turbopackIgnore: true*/ recordingFilePath,
                 JSON.stringify({ endpoint: normalizedName, payload, data, credits }, null, 2),
                 "utf-8"
               );
@@ -302,3 +302,4 @@ export async function callClocked<T>(
     release();
   }
 }
+

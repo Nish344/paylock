@@ -147,3 +147,4 @@ export function codePointLength(text: string): number {
 export function codePointSlice(text: string, start: number, end?: number): string {
   return Array.from(text).slice(start, end).join("");
 }
+
