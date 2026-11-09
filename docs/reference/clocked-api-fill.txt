@@ -1,0 +1,260 @@
+Fill API — Clocked documentation  
+Skip to contentThe Clocked Build Challenge runs October 21 to November 10 with $2,000 in prizes. Enter and start building BenchmarksCapabilitiesIndustriesGetting startedDocsPricingChallengeSign inStart free 
+Documentation API & SDKsBrowse documentation Start buildingIntroductionQuickstart
+API referenceDecide/decideExtract/extractFill/fillProtect/piiGuard/injectionInspect/scriptVerify/groundingCompare/compareRerank/rerankPipeline/pipeline
+Integration guidesAuthenticationResponses & source positionsImagesPDF inputErrors & retriesLimits & usageSecurity & data handling
+Get an API key 
+Docs/API reference
+Fill API
+Combine extracted facts, decisions, scores, and explicitly requested generated text in one record.
+POST/clocked/fillText + images
+Use Fill when a record needs more than one output type. Define each field according to the job it performs rather than asking for one large prose response.
+Before you send a requestAuthenticate with an account API key and provide a unique idempotency key. The fields below describe text requests. Image requests have a different response contract.
+Request body#
+Send a JSON object to https://clocked.rezolve.ai/clocked/fill.
+textstringConditionalNon-empty source text. Source, instructions, fields, and generated output share the serving context. Required unless pdf is sent.
+pdf / pages / pdf_mode / return_textstring / integer[] | string / "auto" | "text" | "image" / booleanA PDF, as base64 or a data:application/pdf;base64 URL, in place of text; the pages to read ([1, 3] or "1-3,5"); auto, text, or image reading; and whether to return the text the PDF was read as. See PDF input.
+fieldsobject<string, typed field>Required1–64 named field definitions. Every field has a type.
+instructionsstringShared reading rules or application policy. Maximum 20,000 characters. Keep source content in its source field, not in these instructions.
+reference_datestring · YYYY-MM-DDAnchor for relative dates in generated date fields.
+return_pdf"highlight" | "box" | "redact"Mark the answer's spans in the PDF and return the marked copy in pdf.marked.document. Text mode only. See Marking the answer back into the PDF.
+Six field types#
+extractsource valuedescription, list, max_items, infer, format, region, and unit. infer defaults to true; explicitly set infer: false when the record must contain strictly verbatim evidence.
+choicesingle labeloptions: 2–255 distinct labels. Can instead use options_by for conditional options. allow_none permits no selected option.
+multiselectmultiple labelsoptions: 2–64 distinct labels. threshold defaults to 0.5; labels are evaluated independently.
+scoreordered levellevels: 2–10 distinct labels from lowest to highest. Returns the selected value, probabilities, and expected score.
+yes_nobooleanUse description to define the yes/no judgment. Returns value and the available probability/confidence information.
+generatewritten or normalized valueExplicitly requests generation. format: text, date, or number. max_tokens: 1–400, default 40. Generated values are marked source: generated.
+Field controls#
+descriptionstringWhat the field should mean. Defaults to the field name.
+inferboolean · extractDefault: trueFalse requires a verbatim source value; true allows an inferred/generated fallback.
+list / max_itemsboolean / integer · extractCollect values. The published SDK/playground supports max_items from 1–32.
+region[start, end] · extractRestrict the text read to a non-empty character range within the source. End is exclusive.
+unit"sentence" · extractRead a sentence-sized source unit.
+formatstringExtract: text, integer, number, date, email, phone, url, code. Generate: text, date, number. Formatted/inferred values are not interchangeable with verbatim source spans.
+temperaturenumber · 0.5–50Readout probability softness for decision fields.
+rotationsinteger · 1–8Number of option orderings to evaluate. More orderings can increase work and latency.
+options_byobject · choiceUse {field: "parent", "parent answer": ["option A", "option B"]}. The parent must be a different choice or yes_no field. Each branch needs 2–255 options. Do not create cyclic dependencies.
+Read each field according to its type#
+The result lives under fields, keyed by the names you supplied. value can be a string, number, boolean, array, or null. Decision fields can include probabilities; source reads can include offsets and confidence; generated fields include source.
+Do not require every field to have every metadata key. In particular, do not use a generated value as if it were a verbatim quotation, and do not interpret verification confidence as a guarantee that a generated answer is correct.
+Request example#
+This is a complete request from a recorded example using fictional content. Python and JavaScript examples use the Clocked SDK; cURL uses your CLOCKED_API_KEY environment variable.
+JSONcURLPythonPython asyncJavaScriptJavaScript async
+JSON requestWrap linesCopy
+{
+  "text": "INC-8421 · 8 October 2026, 10:15\nFrom: Maya Chen, Payroll Operations\nThe payroll portal is unavailable for all 18 members of the payroll team. The page shows 'SSO authentication failed'. We cannot submit this month's payroll; the bank cutoff is 14:00 today. There is no workaround. Other departments can still use the intranet. Assigned engineer: Arjun Shah. Arjun proposed rolling back this morning's identity configuration change. The change manager has not approved that rollback yet. No restoration estimate is available.",
+  "instructions": "Severity rubric: Low = routine request with no service impact; Medium = degraded work with a usable workaround; High = work blocked for a team without a usable workaround; Critical = a company-wide service outage. Major-incident criteria: a company-wide outage OR a business-critical team blocked without a workaround while a stated same-day deadline is at risk. Approval must be explicit. Use only this report; leave extracted details blank when absent. Generated updates must distinguish known facts from unknowns.",
+  "fields": {
+    "incident_id": {
+      "type": "extract",
+      "description": "The incident or ticket identifier",
+      "infer": false
+    },
+    "affected_service": {
+      "type": "extract",
+      "description": "The name of the service, application, or device explicitly reported as affected or damaged. Never return a service explicitly stated to be working normally. Leave blank if no affected service, application, or device is named.",
+      "infer": false
+    },
+    "owner": {
+      "type": "extract",
+      "description": "The person explicitly assigned as the incident owner or engineer",
+      "infer": false
+    },
+    "impact": {
+      "type": "extract",
+      "description": "The passage describing affected users and the business impact",
+      "infer": false
+    },
+    "category": {
+      "type": "choice",
+      "description": "The primary technical category supported by the report",
+      "options": [
+        "Network",
+        "Identity & access",
+        "Application",
+        "Hardware",
+        "Not established"
+      ]
+    },
+    "symptoms": {
+      "type": "multiselect",
+      "description": "Select only symptoms explicitly reported",
+      "options": [
+        "Cannot sign in",
+        "Connection drops",
+        "Application unavailable",
+        "Slow performance",
+        "Device damage"
+      ],
+      "threshold": 0.6
+    },
+    "severity": {
+      "type": "score",
+      "description": "Assess urgency using the severity rubric in shared instructions",
+      "levels": [
+        "Low",
+        "Medium",
+        "High",
+        "Critical"
+      ]
+    },
+    "major_incident": {
+      "type": "yes_no",
+      "description": "Do the explicitly stated facts meet the major-incident criteria in shared instructions?"
+    },
+    "change_approved": {
+      "type": "yes_no",
+      "description": "Has an authorized person explicitly approved the proposed remediation change? Absence of approval is not approval."
+    },
+    "stakeholder_update": {
+      "type": "generate",
+      "description": "Draft a concise update for affected employees in English, at most three sentences. Include the reported impact, current workaround if any, and next known action. Do not invent restoration times, approvals, or technical root causes.",
+      "max_tokens": 120,
+      "format": "text"
+    }
+  }
+}
+Response body#
+A successful HTTP request returns the endpoint result directly. Fields described as optional may be absent. Do not require diagnostic keys to consume a result.
+modelstringModel identifier.
+fieldsobject<string, filled field>Per-field value plus type-dependent metadata: probabilities, confidence, expected, source, or text offsets.
+pdfobject · PDF requestsThe page count, the pages read, the reading mode and, in text mode, page_offsets for finding the page of an offset. With return_pdf, marked. See PDF input.
+timingobjectOptional engine timing. Keys vary by endpoint and execution path. Use HTTP response headers for gateway and billable model timing, not a fixed sum of these values.
+View the complete recorded response JSONRecorded 2026-10-08. This is a saved result, not a live response or a guarantee of identical output.
+Recorded response JSONWrap linesCopy
+{
+  "model": "clocked-1.0",
+  "fields": {
+    "incident_id": {
+      "value": "INC-8421",
+      "start": 0,
+      "end": 8,
+      "p_start": 1,
+      "p_close": 1,
+      "p_point": 1,
+      "p_verify": 1,
+      "confidence": 1
+    },
+    "affected_service": {
+      "value": "payroll portal",
+      "start": 73,
+      "end": 87,
+      "p_start": 1,
+      "p_close": 1,
+      "p_point": 0.387,
+      "p_verify": 1,
+      "alternatives": [
+        {
+          "value": "payroll",
+          "start": 129,
+          "p_verify": 1
+        },
+        {
+          "value": "payroll",
+          "start": 217,
+          "p_verify": 1
+        }
+      ],
+      "confidence": 1
+    },
+    "owner": {
+      "value": "Arjun Shah",
+      "start": 347,
+      "end": 357,
+      "p_start": 1,
+      "p_close": 1,
+      "p_point": 0.422,
+      "p_verify": 0,
+      "confidence": 0
+    },
+    "impact": {
+      "value": "all 18 members of the payroll team",
+      "start": 107,
+      "end": 141,
+      "p_start": 0.928,
+      "p_close": 0.899,
+      "p_point": 1,
+      "p_verify": 1,
+      "confidence": 0.899
+    },
+    "category": {
+      "value": "Identity & access",
+      "confidence": 0.989,
+      "probabilities": {
+        "Network": 0.0021,
+        "Identity & access": 0.9913,
+        "Application": 0.0025,
+        "Hardware": 0.0017,
+        "Not established": 0.0024
+      }
+    },
+    "symptoms": {
+      "value": [
+        "Application unavailable"
+      ],
+      "confidence": 0.18,
+      "probabilities": {
+        "Cannot sign in": 0.59,
+        "Connection drops": 0.0033,
+        "Application unavailable": 0.896,
+        "Slow performance": 0.0033,
+        "Device damage": 0.0034
+      },
+      "threshold": 0.6
+    },
+    "severity": {
+      "value": "High",
+      "confidence": 0.768,
+      "expected": 3.009,
+      "probabilities": {
+        "Low": 0.0341,
+        "Medium": 0.0313,
+        "High": 0.8262,
+        "Critical": 0.1084
+      }
+    },
+    "major_incident": {
+      "value": true,
+      "confidence": 0.962,
+      "probabilities": {
+        "yes": 0.981,
+        "no": 0.019
+      }
+    },
+    "change_approved": {
+      "value": false,
+      "confidence": 0.995,
+      "probabilities": {
+        "yes": 0.0023,
+        "no": 0.9977
+      }
+    },
+    "stakeholder_update": {
+      "value": "The payroll portal is currently unavailable due to an SSO authentication error, impacting the payroll team's ability to submit this month's payroll. There is currently no workaround available. Engineers are proposing a rollback of this morning's identity configuration change, pending approval from the change manager",
+      "confidence": 0.9737,
+      "source": "generated"
+    }
+  },
+  "timing": {
+    "read_ms": 165,
+    "generate_ms": 554,
+    "total_ms": 583,
+    "source_states": 1,
+    "source_prefills": 0,
+    "shared_source_tokens": 256,
+    "shared_read_generate_forwards": 6,
+    "engine": "unified"
+  }
+}
+Image input#
+Supply images and 1–16 fields. result contains typed values without text-mode probabilities or source offsets. Do not send region, unit, temperature, rotations, threshold, options_by, allow_none, or max_tokens in image field definitions.
+Image request and response reference Integration notes#
+Use Extract instead if every output must be a verbatim fact.
+Generated fields introduce generation work. The non-generative decision/extraction behavior does not mean a requested generate field avoids text generation.
+Errors & retries Limits & usage Open Fill playground 
+PreviousExtract APINextProtect APIOn this pageRequest bodySix field typesField controlsRead each field according to its typeRequest exampleResponse bodyImage inputIntegration notesNew to Clocked?
+Start with a request →
+Find the facts. Make the call.
+Capabilities Industries Pricing Docs 
+© 2026 rezolve.ai. Clocked.Security & data · Service information · Changelog

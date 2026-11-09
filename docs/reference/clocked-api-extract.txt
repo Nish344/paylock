@@ -1,0 +1,255 @@
+Extract API — Clocked documentation  
+Skip to contentThe Clocked Build Challenge runs October 21 to November 10 with $2,000 in prizes. Enter and start building BenchmarksCapabilitiesIndustriesGetting startedDocsPricingChallengeSign inStart free 
+Documentation API & SDKsBrowse documentation Start buildingIntroductionQuickstart
+API referenceDecide/decideExtract/extractFill/fillProtect/piiGuard/injectionInspect/scriptVerify/groundingCompare/compareRerank/rerankPipeline/pipeline
+Integration guidesAuthenticationResponses & source positionsImagesPDF inputErrors & retriesLimits & usageSecurity & data handling
+Get an API key 
+Docs/API reference
+Extract API
+Read named values verbatim, with their exact positions in the source text.
+POST/clocked/extractText + images
+Use Extract to turn a document into inspectable facts. It copies what the source states; it is not a date normalizer, calculator, or summary writer.
+Before you send a requestAuthenticate with an account API key and provide a unique idempotency key. The fields below describe text requests. Image requests have a different response contract.
+Request body#
+Send a JSON object to https://clocked.rezolve.ai/clocked/extract.
+textstringConditionalNon-empty source text, up to 200,000 characters. Serving context also applies. Required unless pdf is sent.
+pdf / pages / pdf_mode / return_textstring / integer[] | string / "auto" | "text" | "image" / booleanA PDF, as base64 or a data:application/pdf;base64 URL, in place of text; the pages to read ([1, 3] or "1-3,5"); auto, text, or image reading; and whether to return the text the PDF was read as. See PDF input.
+fieldsobject<string, string | field>Required1–64 named fields. A string describes the value to find. An empty object uses the field name as its description.
+instructionsstringShared reading rules or application policy. Maximum 20,000 characters. Keep source content in its source field, not in these instructions.
+return_pdf"highlight" | "box" | "redact"Mark the answer's spans in the PDF and return the marked copy in pdf.marked.document. Text mode only. See Marking the answer back into the PDF.
+Extraction field definition#
+descriptionstringWhat to find, as a fact the text states: a name, an amount, a date, an identifier, a title, a short phrase. Non-empty when given; if omitted, the field name is used.
+listbooleanDefault: falseCollect every matching value instead of one.
+max_itemsinteger · 1–256Optional cap on a list. Without it the list runs until the model closes it.
+format"text" | "integer" | "number" | "date" | "email" | "phone" | "url" | "code"The shape of the value to find. The value is still copied from the text as written; the format guides where the read looks and what it accepts.
+normalizestring | objectA typed reading of the found span, returned beside it as normalized and never in its place: date, money, number, integer, phone, email, id, boolean or enum. An object adds options: date_order (DMY, MDY or YMD), decimal_separator, currency, country_code, case, and for enum the options list. A type other than extract on an Extract field means the same: type: "date" is normalize: "date".
+fields / row_anchorobject / stringA list of records. fields names 1–16 columns; row_anchor, optional, names the column that identifies each record. See Lists of records.
+Describing a field#
+A value is a span copied from the text: a name, an amount, a date, an identifier, a title, a phrase of up to about a dozen words. A paragraph, a summary, or a sentence the text does not contain is never a value. A list is a list of such spans.
+Describe the fact to find, not the shape you want back. "Return a valid array of employment objects with employer, job title and start date" asks for something the text does not contain, and the result is an empty list. Ask for the employer, the job title and the start date as columns of a list of records instead; see Lists of records.
+Extract does not judge or write. "Important information missing from the document" or "whether the role is current" is a judgment; use Fill, where yes_no, choice, score and generate fields sit beside extracted ones in one record.
+A control the service does not know, a format outside the eight, a max_items above 32, or an empty description is refused before any reading, with the reason in the error message and nothing charged. The playground checks the same rules as you type.
+Lists of records#
+When each record has several attributes, name the columns under fields. Where a record begins is read, not configured: the engine lists where each record begins, its heading, label or first line, over the whole text, and a record runs from there to the next record's beginning. Text on one line, on lines, or in paragraphs is the same case, and two records close together are two records. Name the column that identifies each record as row_anchor, an id, code, number, name or title; the engine then lists that column instead and reads each record's opening around its anchor. On a 295-document set with 1,224 records, naming the anchor lifted exact cells from 36 to 46 percent and the records found from 67 to 78 percent, at no extra model time, so treat it as part of the schema rather than an option.
+Each column is read inside its own record, so values cannot shift between rows, and a column the record does not state is null in that row. A column is a single span; a per-record list, such as the responsibilities of one job, is its own list field, not a column.
+The response carries value as a list of objects, one per record in source order, and items as each record's character range with every column's span and confidence under fields.
+Two limits and one cost. A records field is flat: a list inside a record, such as one provider's several phone numbers, is not a column and is not found; ask for it as its own list field. Every list item and every record cell is its own read, so a request's model time, and with it its credits, grows with the items a list returns and with the rows and columns of a records field; a tight max_items keeps both down, and a row_anchor makes finding the records faster than reading where each one begins. A column that holds a number keeps its unit unless you say otherwise: give it format number, or ask for the unit as its own column, so 12.5 and g/dL come back apart.
+RequestWrap linesCopy
+{
+  "text": "Name: Aspirin; Dose: 200 mg; Frequency: daily\nName: Metformin; Frequency: twice daily\nName: Atorvastatin; Dose: 10 mg; Frequency: at night",
+  "fields": {
+    "medications": {
+      "description": "medication",
+      "list": true,
+      "fields": {
+        "name": "medication name",
+        "dose": "dose including units",
+        "frequency": "how often it is taken"
+      }
+    }
+  }
+}
+Response, recorded 2026-10-20 (the second and third items are elided)Wrap linesCopy
+{
+  "model": "clocked-1.0",
+  "fields": {
+    "medications": {
+      "value": [
+        {
+          "name": "Aspirin",
+          "dose": "200 mg",
+          "frequency": "daily"
+        },
+        {
+          "name": "Metformin",
+          "dose": null,
+          "frequency": "twice daily"
+        },
+        {
+          "name": "Atorvastatin",
+          "dose": "10 mg",
+          "frequency": "at night"
+        }
+      ],
+      "items": [
+        {
+          "start": 0,
+          "end": 45,
+          "fields": {
+            "name": {
+              "value": "Aspirin",
+              "start": 6,
+              "end": 13,
+              "confidence": 1
+            },
+            "dose": {
+              "value": "200 mg",
+              "start": 21,
+              "end": 27,
+              "confidence": 1
+            },
+            "frequency": {
+              "value": "daily",
+              "start": 40,
+              "end": 45,
+              "confidence": 1
+            }
+          }
+        }
+      ],
+      "row_anchor": "name"
+    }
+  },
+  "timing": {
+    "read_ms": 185,
+    "total_ms": 185,
+    "server_ms": 190
+  }
+}
+Source values, lists, and missing facts#
+For a scalar value, use start/end to highlight the exact original source. The end position is exclusive. Preserve whitespace and Unicode in the input if you need to apply these offsets later.
+For lists, read value as the list of selected strings and items as the per-item evidence. A list limit is a cap, not proof that every occurrence was found.
+A missing scalar field returns value: null and no usable source offsets. Do not convert it to an empty string or fill it with a guessed value. Confidence on a missing result is about absence, not a found span.
+valuestring | string[] | nullThe source value, the values of a list, or null when no value is established.
+start / endintegerZero-based Unicode character offsets into the original source. End is exclusive. Present for an individual text span, not a missing value.
+confidencenumber · 0–1Confidence in the source read. For a null result it can describe confidence that the value is absent. Do not treat it as the probability a business decision is correct.
+itemsarray of source readsFor a list field, each item carries its own value and available offsets and confidence.
+p_start / p_close / p_point / p_verify / p_blanknumber · 0–1Optional readout diagnostics. Availability varies by execution path; do not require these keys to consume the result.
+alternatives / rejected / rejected_itemsarraysOptional diagnostic candidates and rejected reads. Use the selected value/items for your record, not the diagnostic alternatives.
+Request example#
+This is a complete request from a recorded example using fictional content. Python and JavaScript examples use the Clocked SDK; cURL uses your CLOCKED_API_KEY environment variable.
+JSONcURLPythonPython asyncJavaScriptJavaScript async
+JSON requestWrap linesCopy
+{
+  "text": "NEW STARTER · People Operations\nCandidate: Amina Rahman\nPersonal contact: amina.rahman@example.com\nRole: Senior Financial Analyst\nOffice: Manchester\nOriginal start date: 19 October 2026\nEquipment requested: ThinkPad T14, USB-C dock, two 27-inch monitors.\n\nUPDATE from People Operations, 8 October 2026:\nAmina has accepted a revised start date of 2 November 2026. The role and office are unchanged. Please use the revised date for provisioning. The line manager has not yet been assigned.\n\nPrevious starter, for reference only: Luca Moretti; start date 12 October 2026; manager Elena Costa.",
+  "instructions": "Read the current starter Amina Rahman. Prefer explicit corrections over original values. Do not borrow details from the previous starter. Keep values verbatim.",
+  "fields": {
+    "employee": "Current starter full name",
+    "role": "Current starter job title",
+    "start_date": "Revised start date of the current starter",
+    "office": "Office location of the current starter",
+    "equipment": {
+      "description": "Individual equipment items requested for the current starter",
+      "list": true,
+      "max_items": 6
+    },
+    "manager": "Assigned line manager of the current starter; empty if not assigned"
+  }
+}
+Response body#
+A successful HTTP request returns the endpoint result directly. Fields described as optional may be absent. Do not require diagnostic keys to consume a result.
+modelstringModel identifier.
+fieldsobject<string, extracted field>One result per requested field. See Source values for scalar, list, and null behavior.
+pdfobject · PDF requestsThe page count, the pages read, the reading mode and, in text mode, page_offsets for finding the page of an offset. With return_pdf, marked. See PDF input.
+timingobjectOptional engine timing. Keys vary by endpoint and execution path. Use HTTP response headers for gateway and billable model timing, not a fixed sum of these values.
+View the complete recorded response JSONRecorded 2026-10-08. This is a saved result, not a live response or a guarantee of identical output.
+Recorded response JSONWrap linesCopy
+{
+  "model": "clocked-1.0",
+  "fields": {
+    "employee": {
+      "value": "Amina Rahman",
+      "start": 43,
+      "end": 55,
+      "p_start": 1,
+      "p_close": 1,
+      "p_point": 0.949,
+      "p_verify": 1,
+      "confidence": 1
+    },
+    "role": {
+      "value": "Senior Financial Analyst",
+      "start": 105,
+      "end": 129,
+      "p_start": 1,
+      "p_close": 1,
+      "p_point": 0.5,
+      "p_verify": 1,
+      "confidence": 1
+    },
+    "start_date": {
+      "value": "2 November 2026",
+      "start": 346,
+      "end": 361,
+      "p_start": 1,
+      "p_close": 1,
+      "p_point": 0.997,
+      "p_verify": 1,
+      "confidence": 1
+    },
+    "office": {
+      "value": "Manchester",
+      "start": 138,
+      "end": 148,
+      "p_start": 1,
+      "p_close": 1,
+      "p_point": 0.5,
+      "p_verify": 1,
+      "confidence": 1
+    },
+    "equipment": {
+      "value": [
+        "ThinkPad T14",
+        "USB-C dock",
+        "two 27-inch monitors"
+      ],
+      "items": [
+        {
+          "value": "ThinkPad T14",
+          "start": 207,
+          "end": 219,
+          "p_start": 1,
+          "p_close": 1,
+          "p_point": 0.5,
+          "p_verify": 1,
+          "p_more": 1,
+          "confidence": 1
+        },
+        {
+          "value": "USB-C dock",
+          "start": 221,
+          "end": 231,
+          "p_start": 1,
+          "p_close": 1,
+          "p_point": 0.58,
+          "p_verify": 1,
+          "p_more": 1,
+          "confidence": 1
+        },
+        {
+          "value": "two 27-inch monitors",
+          "start": 233,
+          "end": 253,
+          "p_start": 1,
+          "p_close": 1,
+          "p_point": 0.584,
+          "p_verify": 1,
+          "p_more": 1,
+          "confidence": 1
+        }
+      ],
+      "confidence": 1
+    },
+    "manager": {
+      "value": null,
+      "confidence": 1,
+      "p_blank": 1
+    }
+  },
+  "timing": {
+    "read_ms": 299,
+    "total_ms": 299,
+    "server_ms": 308
+  }
+}
+Image input#
+Supply images and up to 16 fields. result contains the values directly, without character offsets or text-readout confidence. Keep the source image if your application needs visual review.
+Image request and response reference Integration notes#
+Source matching does not guarantee that the selected fact answers the question correctly. Review low-confidence or business-critical reads.
+Offsets count Unicode characters, not bytes or JavaScript UTF-16 code units. See Responses & source positions for safe slicing.
+Errors & retries Limits & usage Open Extract playground 
+PreviousDecide APINextFill APIOn this pageRequest bodyExtraction field definitionDescribing a fieldLists of recordsSource values, lists, and missing factsRequest exampleResponse bodyImage inputIntegration notesNew to Clocked?
+Start with a request →
+Find the facts. Make the call.
+Capabilities Industries Pricing Docs 
+© 2026 rezolve.ai. Clocked.Security & data · Service information · Changelog
