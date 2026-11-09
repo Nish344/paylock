@@ -171,6 +171,8 @@ Mode: live / replay
 
 *Note on overrides:* In live evaluation, Decide independently chose HOLD on `dock-count` (recognizing the short delivery note). In **Case 4 (`bad-math`)** and **Case 5 (`ai-note`)**, Decide recommended **PAY (100%)**, which Paylock's invariant gate overruled to **HOLD**, demonstrating the safety invariant in action.
 
+For the detailed log of reality checks, prompt tunings, and engineering decisions, see [docs/FINDINGS_AND_DECISIONS.md](docs/FINDINGS_AND_DECISIONS.md).
+
 ---
 
 ## 8. Running Locally
