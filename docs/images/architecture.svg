@@ -1,0 +1,127 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1380 700" role="img" aria-labelledby="title desc">
+  <title id="title">Paylock architecture</title>
+  <desc id="desc">Four phases of Clocked calls, then a gate that can only turn a PAY into a HOLD.</desc>
+  <rect width="1380" height="700" fill="#141311"/>
+
+  <text x="48" y="52" fill="#7dccc2" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="12" letter-spacing="3">PAYLOCK</text>
+  <text x="48" y="98" fill="#f4f0e6" font-family="Georgia, 'Times New Roman', serif" font-size="36">Four phases. One gate.</text>
+  <text x="48" y="128" fill="#d6d0c4" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13">Clocked reads the documents. Ordinary code decides whether the button pays.</text>
+
+  <!-- cards -->
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, monospace">
+    <!-- 01 -->
+    <g transform="translate(48,176)">
+      <rect width="210" height="440" rx="16" fill="#1e1c19" stroke="#3c3832"/>
+      <text x="20" y="36" fill="#7dccc2" font-size="11" letter-spacing="1.5">01 &#183; PARALLEL</text>
+      <text x="20" y="70" fill="#f4f0e6" font-family="Georgia, serif" font-size="26">Ingest</text>
+      <g fill="#2a2723">
+        <rect x="16" y="98" width="178" height="52" rx="8"/>
+        <rect x="16" y="158" width="178" height="52" rx="8"/>
+        <rect x="16" y="218" width="178" height="52" rx="8"/>
+        <rect x="16" y="278" width="178" height="52" rx="8"/>
+        <rect x="16" y="338" width="178" height="52" rx="8"/>
+      </g>
+      <g fill="#f4f0e6" font-size="13">
+        <text x="28" y="120">Guard</text>
+        <text x="28" y="180">Protect</text>
+        <text x="28" y="240">Extract</text>
+        <text x="28" y="300">Extract</text>
+        <text x="28" y="360">Extract</text>
+      </g>
+      <g fill="#d6d0c4" font-size="11">
+        <text x="28" y="138">prompt attacks</text>
+        <text x="28" y="198">bank numbers</text>
+        <text x="28" y="258">the invoice</text>
+        <text x="28" y="318">the purchase order</text>
+        <text x="28" y="378">the receiving note</text>
+      </g>
+    </g>
+
+    <!-- 02 -->
+    <g transform="translate(402,176)">
+      <rect width="210" height="440" rx="16" fill="#1e1c19" stroke="#3c3832"/>
+      <text x="20" y="36" fill="#7dccc2" font-size="11" letter-spacing="1.5">02 &#183; PARALLEL</text>
+      <text x="20" y="70" fill="#f4f0e6" font-family="Georgia, serif" font-size="26">Review</text>
+      <g fill="#2a2723">
+        <rect x="16" y="98" width="178" height="52" rx="8"/>
+        <rect x="16" y="158" width="178" height="52" rx="8"/>
+      </g>
+      <g fill="#f4f0e6" font-size="13">
+        <text x="28" y="120">Compare</text>
+        <text x="28" y="180">Decide</text>
+      </g>
+      <g fill="#d6d0c4" font-size="11">
+        <text x="28" y="138">what the item is</text>
+        <text x="28" y="198">PAY, HOLD, REJECT</text>
+      </g>
+      <text x="20" y="250" fill="#d6d0c4" font-size="12">Decide never sees</text>
+      <text x="20" y="268" fill="#d6d0c4" font-size="12">the ledger.</text>
+    </g>
+
+    <!-- 03 -->
+    <g transform="translate(648,176)">
+      <rect width="210" height="440" rx="16" fill="#1e1c19" stroke="#3c3832"/>
+      <text x="20" y="36" fill="#7dccc2" font-size="11" letter-spacing="1.5">03</text>
+      <text x="20" y="70" fill="#f4f0e6" font-family="Georgia, serif" font-size="26">Write</text>
+      <g fill="#2a2723">
+        <rect x="16" y="98" width="178" height="64" rx="8"/>
+      </g>
+      <text x="28" y="124" fill="#f4f0e6" font-size="13">Fill</text>
+      <text x="28" y="144" fill="#d6d0c4" font-size="11">claims, clerk note,</text>
+      <text x="28" y="158" fill="#d6d0c4" font-size="11">question</text>
+    </g>
+
+    <!-- 04 -->
+    <g transform="translate(894,176)">
+      <rect width="210" height="440" rx="16" fill="#1e1c19" stroke="#3c3832"/>
+      <text x="20" y="36" fill="#7dccc2" font-size="11" letter-spacing="1.5">04 &#183; PARALLEL</text>
+      <text x="20" y="70" fill="#f4f0e6" font-family="Georgia, serif" font-size="26">Ground</text>
+      <g fill="#2a2723">
+        <rect x="16" y="98" width="178" height="64" rx="8"/>
+        <rect x="16" y="174" width="178" height="64" rx="8"/>
+      </g>
+      <g fill="#f4f0e6" font-size="13">
+        <text x="28" y="122">Verify claims</text>
+        <text x="28" y="198">Verify the note</text>
+      </g>
+      <g fill="#d6d0c4" font-size="11">
+        <text x="28" y="140">PO and dock only</text>
+        <text x="28" y="216">docs plus the ledger</text>
+      </g>
+    </g>
+
+    <!-- gate -->
+    <g transform="translate(1140,176)">
+      <rect width="200" height="440" rx="16" fill="#1e1c19" stroke="#7dccc2" stroke-width="1.5"/>
+      <text x="20" y="36" fill="#7dccc2" font-size="11" letter-spacing="1.5">THE GATE</text>
+      <text x="20" y="74" fill="#f4f0e6" font-family="Georgia, serif" font-size="26">decidePay</text>
+      <g font-size="12" font-weight="600">
+        <rect x="16" y="104" width="168" height="32" rx="16" fill="#1b3026"/>
+        <text x="100" y="125" fill="#8fbfa4" text-anchor="middle">PAY</text>
+        <rect x="16" y="146" width="168" height="32" rx="16" fill="#3a2e16"/>
+        <text x="100" y="167" fill="#e2b45e" text-anchor="middle">HOLD</text>
+        <rect x="16" y="188" width="168" height="32" rx="16" fill="#3a2320"/>
+        <text x="100" y="209" fill="#e08b83" text-anchor="middle">REJECT</text>
+      </g>
+      <text x="20" y="258" fill="#f4f0e6" font-family="Georgia, serif" font-size="15">Code can only</text>
+      <text x="20" y="280" fill="#f4f0e6" font-family="Georgia, serif" font-size="15">turn PAY into HOLD.</text>
+      <text x="20" y="312" fill="#d6d0c4" font-size="12">HOLD and REJECT</text>
+      <text x="20" y="330" fill="#d6d0c4" font-size="12">are always followed.</text>
+    </g>
+  </g>
+
+  <!-- the one step that is not a model call -->
+  <g transform="translate(254,378)">
+    <rect width="150" height="36" rx="18" fill="#141311" stroke="#7dccc2" stroke-dasharray="3 3"/>
+    <text x="75" y="23" fill="#7dccc2" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="11" text-anchor="middle">mask &#183; ledger</text>
+  </g>
+
+  <!-- arrows -->
+  <g fill="none" stroke="#7dccc2" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M616 396 h26 l-7 -6 m7 6 l-7 6"/>
+    <path d="M862 396 h26 l-7 -6 m7 6 l-7 6"/>
+    <path d="M1108 396 h26 l-7 -6 m7 6 l-7 6"/>
+  </g>
+
+  <text x="48" y="660" fill="#d6d0c4" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="12">Teal marks a Clocked call. The dashed chip is ordinary code, and it is the only thing that can lock the button.</text>
+</svg>

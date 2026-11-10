@@ -137,7 +137,7 @@ export async function callClocked<T>(
       return {
         ok: true,
         data: saved.data as T,
-        credits: saved.credits ?? 0,
+        credits: 0,
         replayed: true,
       };
     } catch (err: unknown) {

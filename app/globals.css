@@ -1,26 +1,195 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
+/* Runtime tokens, so one set of utilities serves both themes. */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-desk: var(--desk);
+  --color-panel: var(--panel);
+  --color-line: var(--line);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-paper: var(--paper);
+  --color-ink: var(--ink);
+  --color-accent: var(--accent);
+  --color-accent-deep: var(--accent-deep);
+  --color-on-accent: var(--on-accent);
+  --color-mint: var(--mint);
+  --color-mint-deep: var(--mint-deep);
+  --color-mint-soft: var(--mint-soft);
+  --color-signal: var(--signal);
+  --color-signal-soft: var(--signal-soft);
+  --color-alarm: var(--alarm);
+  --color-alarm-soft: var(--alarm-soft);
+  --color-pay-ink: var(--pay-ink);
+  --color-hold-ink: var(--hold-ink);
+  --color-reject-ink: var(--reject-ink);
+  --color-stamp-hold: var(--stamp-hold);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-serif: var(--font-instrument-serif);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+:root {
+  color-scheme: light;
+  --desk: #f6f3ec;
+  --panel: #fbfaf6;
+  --line: #e3ded2;
+  --fg: #2b3440;
+  --muted: #596270;
+  --paper: #fbfaf6;
+  --ink: #2b3440;
+  --accent: #2f6f6a;
+  --accent-deep: #245854;
+  --on-accent: #f6f3ec;
+  --mint: #4e8f6b;
+  --mint-deep: #3f7a58;
+  --mint-soft: #e4f0e8;
+  --signal: #c98a2b;
+  --signal-soft: #f6ebd3;
+  --alarm: #b5524a;
+  --alarm-soft: #f3dedb;
+  --pay-ink: #2f6b4a;
+  --hold-ink: #7a5412;
+  --reject-ink: #8c3c36;
+  --stamp-hold: #a06e1e;
+}
+
+.dark {
+  color-scheme: dark;
+  --desk: #141311;
+  --panel: #1e1c19;
+  --line: #3c3832;
+  --fg: #f4f0e6;
+  --muted: #d6d0c4;
+  --paper: #1e1c19;
+  --ink: #f4f0e6;
+  --accent: #7dccc2;
+  --accent-deep: #a5e0d8;
+  --on-accent: #10211f;
+  --mint: #8fbfa4;
+  --mint-deep: #a8d4ba;
+  --mint-soft: #1b3026;
+  --signal: #e2b45e;
+  --signal-soft: #3a2e16;
+  --alarm: #e08b83;
+  --alarm-soft: #3a2320;
+  --pay-ink: #8fbfa4;
+  --hold-ink: #e2b45e;
+  --reject-ink: #e08b83;
+  --stamp-hold: #e2b45e;
+}
+
+/* Paper grain */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+  opacity: 0.045;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+@layer components {
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    box-shadow: 0 18px 40px -28px color-mix(in oklab, var(--fg) 30%, transparent);
+  }
+
+  .sheet {
+    background: var(--paper);
+    color: var(--ink);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    box-shadow: 0 22px 40px -28px color-mix(in oklab, var(--fg) 35%, transparent);
+  }
+
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+  .tag::before {
+    content: "";
+    width: 18px;
+    height: 1.5px;
+    background: var(--accent);
+  }
+
+  .hl {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .grid-bg {
+    background-image:
+      linear-gradient(color-mix(in oklab, var(--fg) 9%, transparent) 1px, transparent 1px),
+      linear-gradient(90deg, color-mix(in oklab, var(--fg) 9%, transparent) 1px, transparent 1px);
+    background-size: 56px 56px;
+    mask-image: radial-gradient(ellipse at 30% 40%, #000 20%, transparent 75%);
+  }
+
+  .btn {
+    border-radius: 999px;
+    font-family: var(--font-mono);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    transition: background-color 180ms, color 180ms, transform 180ms, box-shadow 180ms;
+  }
+  .btn:not(:disabled):hover {
+    transform: translateY(-1px);
+  }
+
+  /* Accounting paper: rules every 20px and a brick margin line */
+  .ledger {
+    line-height: 20px;
+    padding: 20px 16px 20px 44px;
+    background-color: var(--paper);
+    background-image:
+      linear-gradient(to right, transparent 31px, color-mix(in oklab, var(--alarm) 55%, transparent) 31px, color-mix(in oklab, var(--alarm) 55%, transparent) 32px, transparent 32px),
+      repeating-linear-gradient(to bottom, transparent 0 19px, color-mix(in oklab, var(--ink) 14%, transparent) 19px 20px);
+    background-attachment: local;
+  }
+
+  .stamp {
+    display: inline-block;
+    transform: rotate(-7deg);
+    border: 3px double currentColor;
+    border-radius: 10px;
+    padding: 0.08em 0.4em 0;
+    font-family: var(--font-serif);
+    font-style: italic;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    line-height: 1.05;
+  }
+
+  .receipt {
+    --z: 9px;
+    padding-bottom: calc(var(--z) + 1.25rem);
+    mask: conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / calc(2 * var(--z)) 100%;
+  }
+
+  .ticker {
+    animation: ticker 38s linear infinite;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ticker {
+      animation: none;
+    }
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@keyframes ticker {
+  to {
+    transform: translateX(-50%);
+  }
 }

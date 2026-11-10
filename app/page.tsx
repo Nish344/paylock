@@ -1,10 +1,41 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useSyncExternalStore } from "react";
 import { FIXTURES, type FixtureCase } from "@/lib/fixtures";
 import { segments, type Mark, find } from "@/lib/spans";
 import type { PaylockRunResult } from "@/lib/paylock";
 import type { VerifyClaim } from "@/lib/types";
+
+const ENDPOINTS = ["Decide", "Extract", "Fill", "Verify", "Compare", "Guard", "Protect"];
+
+const TICKER = [
+  "Invoice = claim",
+  "PO + receiving note = proof",
+  "Code can only turn PAY into HOLD",
+  "Decide's HOLD and REJECT are always followed",
+  "Every number is a verified span",
+];
+
+const VERDICT_PILL: Record<string, string> = {
+  PAY: "bg-mint-soft text-pay-ink border-mint/40",
+  HOLD: "bg-signal-soft text-hold-ink border-signal/50",
+  REJECT: "bg-alarm-soft text-reject-ink border-alarm/40",
+};
+
+const VERDICT_STAMP: Record<string, string> = {
+  PAY: "text-mint",
+  HOLD: "text-stamp-hold",
+  REJECT: "text-alarm",
+};
+
+const REASON_TAG: Record<string, string> = {
+  ledger: "text-accent-deep border-accent/30 bg-accent/10",
+  guard: "text-reject-ink border-alarm/40 bg-alarm-soft",
+  compare: "text-fg border-line bg-desk",
+  verify: "text-hold-ink border-signal/40 bg-signal-soft",
+  decide: "text-fg border-line bg-desk",
+  system: "text-muted border-line bg-desk",
+};
 
 export default function PaylockPage() {
   const [selectedCaseId, setSelectedCaseId] = useState<string>("dock-count");
@@ -20,6 +51,24 @@ export default function PaylockPage() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [result, setResult] = useState<PaylockRunResult | null>(null);
   const [paidDemo, setPaidDemo] = useState<boolean>(false);
+  const dark = useSyncExternalStore(
+    (onChange) => {
+      const obs = new MutationObserver(onChange);
+      obs.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ["class"],
+      });
+      return () => obs.disconnect();
+    },
+    () => document.documentElement.classList.contains("dark"),
+    () => false
+  );
+
+  const toggleTheme = () => {
+    const next = !document.documentElement.classList.contains("dark");
+    document.documentElement.classList.toggle("dark", next);
+    localStorage.setItem("paylock-theme", next ? "dark" : "light");
+  };
 
   const selectCase = (c: FixtureCase) => {
     setSelectedCaseId(c.id);
@@ -75,12 +124,12 @@ export default function PaylockPage() {
   ) => {
     if (!text.trim()) {
       return (
-        <span className="text-zinc-600 italic text-sm">{emptyLabel}</span>
+        <span className="text-zinc-500 italic text-sm">{emptyLabel}</span>
       );
     }
     const segs = segments(text, marks);
     return (
-      <div className="font-mono text-xs whitespace-pre-wrap leading-relaxed select-text">
+      <div className="font-mono text-xs leading-5 whitespace-pre-wrap select-text">
         {segs.map((seg, idx) => {
           if (!seg.mark) {
             return <span key={idx}>{seg.text}</span>;
@@ -91,7 +140,7 @@ export default function PaylockPage() {
               <mark
                 key={idx}
                 title={label || "Number read and verified by ledger"}
-                className="bg-emerald-500/25 text-emerald-300 font-semibold px-0.5 rounded transition-colors"
+                className="bg-accent/12 text-accent-deep font-bold border-b-2 border-accent px-0.5"
               >
                 {seg.text}
               </mark>
@@ -102,7 +151,7 @@ export default function PaylockPage() {
               <mark
                 key={idx}
                 title={label || "Instruction removed by Guard before review"}
-                className="bg-rose-900/60 text-rose-300 line-through px-0.5 rounded border border-rose-700/50"
+                className="bg-alarm-soft text-alarm line-through decoration-2 px-0.5 rounded-sm"
               >
                 {seg.text}
               </mark>
@@ -113,7 +162,7 @@ export default function PaylockPage() {
               <span
                 key={idx}
                 title={label || "Masked bank details (Protect)"}
-                className="bg-zinc-800 text-zinc-500 px-0.5 rounded select-none font-mono"
+                className="text-ink px-0.5 select-none font-mono"
               >
                 {seg.text}
               </span>
@@ -124,7 +173,7 @@ export default function PaylockPage() {
               <span
                 key={idx}
                 title={label || "Vendor claim not backed by PO or receiving note"}
-                className="line-through decoration-rose-400 decoration-2 text-rose-300 bg-rose-950/40 px-0.5 rounded"
+                className="line-through decoration-alarm decoration-2 text-alarm bg-alarm-soft px-0.5"
               >
                 {seg.text}
               </span>
@@ -135,7 +184,7 @@ export default function PaylockPage() {
               <span
                 key={idx}
                 title={label || "Vendor claim backed by buyer records"}
-                className="underline decoration-dotted decoration-emerald-400 text-emerald-300 bg-emerald-950/30 px-0.5 rounded"
+                className="underline decoration-dotted decoration-2 decoration-mint bg-mint-soft px-0.5"
               >
                 {seg.text}
               </span>
@@ -210,7 +259,7 @@ export default function PaylockPage() {
     note: string,
     claims: VerifyClaim[] | undefined
   ) => {
-    if (!note) return <span className="text-zinc-500 italic">None</span>;
+    if (!note) return <span className="text-muted italic">None</span>;
     if (!claims || claims.length === 0) return <span>{note}</span>;
 
     const noteMarks: Mark[] = [];
@@ -240,7 +289,7 @@ export default function PaylockPage() {
             <span
               key={i}
               title="Sentence not supported by records"
-              className="line-through decoration-rose-500 decoration-2 text-rose-300 bg-rose-950/40 px-1 rounded"
+              className="line-through decoration-alarm decoration-2 text-alarm bg-alarm-soft px-1"
             >
               {s.text}
             </span>
@@ -256,239 +305,282 @@ export default function PaylockPage() {
   const isOverruled =
     decision?.overruled && decision?.modelRecommendation?.choice === "PAY";
 
-  return (
-    <div className="flex flex-col min-h-screen bg-zinc-950 text-zinc-100 antialiased">
-      {/* Top Navbar */}
-      <header className="border-b border-zinc-800 bg-zinc-900/60 backdrop-blur px-6 py-3.5 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="h-8 w-8 rounded-lg bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center font-bold text-emerald-400">
-            P
-          </div>
-          <div>
-            <h1 className="text-base font-semibold tracking-tight text-white flex items-center gap-2">
-              Paylock
-              <span className="text-[10px] font-mono uppercase bg-zinc-800 text-zinc-300 px-1.5 py-0.5 rounded border border-zinc-700">
-                Clocked Gate
-              </span>
-            </h1>
-            <p className="text-xs text-zinc-400">
-              The model may recommend PAY. The button only pays if the dock and
-              the purchase order agree.
-            </p>
-          </div>
-        </div>
+  const docBlocks = [
+    {
+      id: "invoice-input",
+      title: "Invoice",
+      subtitle: "the vendor's claim",
+      note: "Outside · untrusted",
+      value: invoice,
+      setter: setInvoice,
+      rows: 9,
+      view: result?.cleanInvoice || invoice,
+      marks: invoiceMarks,
+      empty: "No invoice provided",
+      placeholder: "Paste vendor invoice text...",
+    },
+    {
+      id: "po-input",
+      title: "Purchase order",
+      subtitle: "what we agreed",
+      note: "Buyer record",
+      value: po,
+      setter: setPo,
+      rows: 7,
+      view: po,
+      marks: poMarks,
+      empty: "No PO provided",
+      placeholder: "Paste purchase order text...",
+    },
+    {
+      id: "receipt-input",
+      title: "Receiving note",
+      subtitle: "what the dock accepted",
+      note: "Dock count · M. Ruiz",
+      value: receipt,
+      setter: setReceipt,
+      rows: 7,
+      view: receipt,
+      marks: receiptMarks,
+      empty: "No receiving note provided",
+      placeholder: "Paste receiving note text...",
+    },
+  ];
 
-        <div className="flex items-center gap-3 text-xs">
-          <span className="text-zinc-400 hidden sm:inline">
-            7 Clocked Endpoints: Decide · Extract · Fill · Verify · Compare · Guard · Protect
-          </span>
-          <a
-            href="https://github.com/Nish344/paylock"
-            target="_blank"
-            rel="noreferrer"
-            className="text-xs text-zinc-400 hover:text-white transition-colors border border-zinc-700 bg-zinc-800/80 px-2.5 py-1 rounded"
-          >
-            GitHub
-          </a>
+  const money = (cents: number) =>
+    (cents / 100).toLocaleString("en-US", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+
+  return (
+    <div className="flex flex-col min-h-screen bg-desk text-fg antialiased">
+      {/* Top Navbar */}
+      <header className="sticky top-0 z-30 bg-desk/80 backdrop-blur-md border-b border-line">
+        <div className="max-w-[1500px] mx-auto px-6 py-3.5 flex items-center justify-between gap-6">
+          <div className="font-serif text-[30px] leading-none flex items-center gap-2.5">
+            <span
+              aria-hidden
+              className="w-7 h-7 rounded-lg bg-accent flex items-center justify-center"
+            >
+              <span className="w-2 h-2.5 rounded-[2px] bg-desk" />
+            </span>
+            <span>
+              Pay<span className="italic text-accent">lock</span>
+            </span>
+          </div>
+
+          <nav className="hidden md:flex items-center gap-1 font-mono text-[10.5px] uppercase tracking-[0.16em] text-muted">
+            {ENDPOINTS.map((e, i) => (
+              <span key={e} className="flex items-center gap-1">
+                {i > 0 && <span className="text-accent/70">/</span>}
+                {e}
+              </span>
+            ))}
+          </nav>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={toggleTheme}
+              aria-pressed={dark}
+              className="btn border border-line bg-panel text-fg hover:border-accent text-[11px] px-3.5 py-2"
+            >
+              {dark ? "Light" : "Dark"}
+            </button>
+            <a
+              href="https://github.com/Nish344/paylock"
+              target="_blank"
+              rel="noreferrer"
+              className="btn bg-accent text-on-accent hover:bg-accent-deep text-[11px] px-4 py-2"
+            >
+              GitHub ↗
+            </a>
+          </div>
         </div>
       </header>
 
+      {/* Hero */}
+      <div className="relative overflow-hidden border-b border-line">
+        <div aria-hidden className="grid-bg absolute inset-0" />
+        <div
+          aria-hidden
+          className="absolute -right-32 -top-48 w-[620px] h-[620px] rounded-full bg-accent/10 blur-[140px]"
+        />
+        <section className="relative max-w-[1500px] w-full mx-auto px-6 pt-20 pb-16 grid lg:grid-cols-[1.5fr_1fr] gap-12 items-end">
+          <div>
+            <span className="tag text-muted">Three-way match · built on Clocked</span>
+            <h1 className="mt-7 font-serif leading-[0.92] tracking-[-0.02em] text-6xl sm:text-7xl xl:text-[104px]">
+              The model may say pay.
+              <br />
+              The <span className="hl">dock</span> decides.
+            </h1>
+          </div>
+          <div className="flex flex-col gap-7">
+            <p className="text-[15px] leading-relaxed text-fg/90 max-w-md">
+              Paste an invoice, a purchase order and a receiving note. Clocked
+              reads all three; a few lines of ordinary code decide whether the
+              Pay button is live. It only pays if the dock and the purchase
+              order agree.
+            </p>
+            <dl className="grid grid-cols-3 max-w-md border-y border-line divide-x divide-line">
+              {[
+                ["7", "Clocked endpoints"],
+                ["10", "calls per invoice"],
+                ["$0", "moved by Paylock"],
+              ].map(([n, l]) => (
+                <div key={l} className="py-4 px-4 first:pl-0">
+                  <dt className="font-serif text-4xl leading-none">{n}</dt>
+                  <dd className="mt-2 font-mono text-[10px] uppercase tracking-wider text-muted">
+                    {l}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+        </section>
+      </div>
+
+      {/* Ticker tape */}
+      <div className="bg-accent text-on-accent overflow-hidden" aria-hidden>
+        <div className="ticker flex w-max py-3 font-mono text-xs font-semibold uppercase tracking-[0.2em]">
+          {[0, 1].map((k) => (
+            <div key={k} className="flex">
+              {TICKER.map((t) => (
+                <span key={t} className="flex items-center gap-6 pr-6">
+                  {t}
+                  <span className="text-[10px]">✦</span>
+                </span>
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* Main 3-Column Layout */}
-      <main className="flex-1 grid grid-cols-1 lg:grid-cols-[240px_1fr_420px] divide-y lg:divide-y-0 lg:divide-x divide-zinc-800">
+      <main className="flex-1 max-w-[1500px] w-full mx-auto px-6 py-12 grid grid-cols-1 lg:grid-cols-[250px_1fr_440px] gap-8 items-start">
         {/* ========================================================= */}
         {/* LEFT COLUMN: Test Cases */}
         {/* ========================================================= */}
-        <section className="p-4 bg-zinc-950/80 overflow-y-auto">
-          <div className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400 mb-3 px-1">
-            Invoices to Review
-          </div>
-          <div className="space-y-1.5">
+        <section className="flex flex-col gap-4 lg:sticky lg:top-24">
+          <span className="tag text-muted">Invoices to review</span>
+          <div className="flex flex-col gap-2">
             {FIXTURES.map((c) => {
               const isSelected = selectedCaseId === c.id;
-              const badgeColor =
-                c.expected === "PAY"
-                  ? "bg-emerald-950/80 text-emerald-300 border-emerald-700/60"
-                  : c.expected === "HOLD"
-                    ? "bg-amber-950/80 text-amber-300 border-amber-700/60"
-                    : "bg-rose-950/80 text-rose-300 border-rose-700/60";
-
               return (
                 <button
                   key={c.id}
                   onClick={() => selectCase(c)}
-                  className={`w-full text-left p-2.5 rounded-lg border transition-all text-xs flex flex-col gap-1.5 ${
+                  className={`relative w-full text-left pl-4 pr-3 py-3 rounded-xl border flex flex-col gap-2 transition-all overflow-hidden ${
                     isSelected
-                      ? "bg-zinc-800/90 border-zinc-600 shadow-sm"
-                      : "bg-zinc-900/40 border-zinc-800/80 hover:bg-zinc-900 hover:border-zinc-700"
+                      ? "bg-accent/[0.07] border-accent/50"
+                      : "bg-panel border-line hover:border-accent/30 hover:-translate-y-px"
                   }`}
                 >
-                  <div className="flex items-center justify-between w-full">
+                  {isSelected && (
+                    <span className="absolute left-0 top-0 bottom-0 w-1 bg-accent" />
+                  )}
+                  <span className="text-[13px] font-medium leading-snug">
+                    {c.title}
+                  </span>
+                  <span className="flex items-center gap-2 text-[10px]">
                     <span
-                      className={`font-medium ${
-                        isSelected ? "text-white" : "text-zinc-300"
-                      }`}
+                      className={`px-2 py-0.5 rounded-full border font-mono font-semibold uppercase tracking-wider ${VERDICT_PILL[c.expected]}`}
                     >
-                      {c.title}
+                      {c.expected}
                     </span>
-                  </div>
-                  <div className="flex items-center gap-1.5 text-[10px]">
-                    <span
-                      className={`px-1.5 py-0.5 rounded border font-mono font-medium ${badgeColor}`}
-                    >
-                      Exp: {c.expected}
-                    </span>
-                    <span className="text-zinc-500 font-mono">
-                      {c.id}
-                    </span>
-                  </div>
+                    <span className="font-mono text-muted">{c.id}</span>
+                  </span>
                 </button>
               );
             })}
           </div>
 
-          <div className="mt-6 pt-4 border-t border-zinc-800/80 text-[11px] text-zinc-500 leading-relaxed px-1">
-            <strong className="text-zinc-400">Three-way matching:</strong>{" "}
-            The invoice is vendor claims; the purchase order and receiving note
-            are proof.
-          </div>
+          <p className="font-serif italic text-xl text-fg/80 leading-snug mt-2">
+            “The invoice is the vendor&apos;s story. The PO and the receiving
+            note are the buyer&apos;s evidence.”
+          </p>
         </section>
 
         {/* ========================================================= */}
         {/* MIDDLE COLUMN: Three Documents & Editor */}
         {/* ========================================================= */}
-        <section className="p-5 flex flex-col gap-4 overflow-y-auto bg-zinc-900/20">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
-                Documents Under Review
-              </span>
+        <section className="flex flex-col gap-6 min-w-0">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <span className="tag text-muted">Documents under review</span>
               {selectedCaseId ? (
-                <span className="text-[11px] text-zinc-500 font-mono">
-                  ({selectedCaseId})
+                <span className="text-[11px] font-mono text-muted">
+                  {selectedCaseId}
                 </span>
               ) : (
-                <span className="text-[11px] text-amber-400 font-mono">
-                  (Custom inputs)
+                <span className="text-[10px] font-mono uppercase tracking-wider rounded-full bg-signal-soft text-hold-ink border border-signal/40 px-2">
+                  custom input
                 </span>
               )}
             </div>
 
-            <div className="flex items-center gap-2">
-              {result && (
-                <button
-                  onClick={() => setIsEditing(!isEditing)}
-                  className="text-xs text-zinc-400 hover:text-white px-2 py-1 rounded bg-zinc-800 border border-zinc-700 transition-colors"
-                >
-                  {isEditing ? "View highlighted" : "Edit documents"}
-                </button>
+            {result && (
+              <button
+                onClick={() => setIsEditing(!isEditing)}
+                className="btn border border-line text-fg/80 hover:border-fg/40 text-[10px] px-3.5 py-1.5"
+              >
+                {isEditing ? "View highlighted" : "Edit documents"}
+              </button>
+            )}
+          </div>
+
+          {docBlocks.map((d, i) => (
+            <div key={d.id} className="sheet overflow-hidden">
+              <label
+                htmlFor={d.id}
+                className="flex items-center justify-between gap-3 px-5 py-3 border-b border-line"
+              >
+                <span className="flex items-baseline gap-2.5">
+                  <span aria-hidden className="font-mono text-[11px] text-accent-deep font-semibold">
+                    0{i + 1}
+                  </span>
+                  <span className="font-serif text-[26px] leading-none">{d.title}</span>
+                  <span className="font-serif italic text-base text-muted">
+                    {d.subtitle}
+                  </span>
+                </span>
+                <span className="font-mono text-[9.5px] uppercase tracking-[0.14em] text-muted">
+                  {d.note}
+                </span>
+              </label>
+              {isEditing || !result ? (
+                <textarea
+                  id={d.id}
+                  rows={d.rows}
+                  value={d.value}
+                  onChange={(e) => handleTextChange(d.setter, e.target.value)}
+                  placeholder={d.placeholder}
+                  className="ledger block w-full font-mono text-xs leading-5 text-ink placeholder:text-muted focus:outline-none resize-y"
+                />
+              ) : (
+                <div className="ledger max-h-80 overflow-y-auto">
+                  {renderDocumentView(d.view, d.marks, d.empty)}
+                </div>
               )}
             </div>
-          </div>
-
-          {/* Document 1: Invoice */}
-          <div className="flex flex-col gap-1.5 bg-zinc-900/60 border border-zinc-800 rounded-lg p-3.5">
-            <label
-              htmlFor="invoice-input"
-              className="text-xs font-semibold text-zinc-300 flex items-center justify-between"
-            >
-              <span>1. Invoice (vendor&apos;s claim)</span>
-              <span className="text-[10px] text-zinc-500 font-normal">
-                Outside untrusted data
-              </span>
-            </label>
-            {isEditing || !result ? (
-              <textarea
-                id="invoice-input"
-                rows={9}
-                value={invoice}
-                onChange={(e) => handleTextChange(setInvoice, e.target.value)}
-                placeholder="Paste vendor invoice text..."
-                className="w-full bg-zinc-950 font-mono text-xs text-zinc-200 border border-zinc-800 rounded p-2.5 focus:outline-none focus:border-emerald-500/50 resize-y"
-              />
-            ) : (
-              <div className="bg-zinc-950 p-3 rounded border border-zinc-800/80 max-h-72 overflow-y-auto">
-                {renderDocumentView(
-                  result.cleanInvoice || invoice,
-                  invoiceMarks,
-                  "No invoice provided"
-                )}
-              </div>
-            )}
-          </div>
-
-          {/* Document 2: Purchase Order */}
-          <div className="flex flex-col gap-1.5 bg-zinc-900/60 border border-zinc-800 rounded-lg p-3.5">
-            <label
-              htmlFor="po-input"
-              className="text-xs font-semibold text-zinc-300 flex items-center justify-between"
-            >
-              <span>2. Purchase Order (what we agreed)</span>
-              <span className="text-[10px] text-zinc-500 font-normal">
-                Buyer record
-              </span>
-            </label>
-            {isEditing || !result ? (
-              <textarea
-                id="po-input"
-                rows={7}
-                value={po}
-                onChange={(e) => handleTextChange(setPo, e.target.value)}
-                placeholder="Paste purchase order text..."
-                className="w-full bg-zinc-950 font-mono text-xs text-zinc-200 border border-zinc-800 rounded p-2.5 focus:outline-none focus:border-emerald-500/50 resize-y"
-              />
-            ) : (
-              <div className="bg-zinc-950 p-3 rounded border border-zinc-800/80 max-h-60 overflow-y-auto">
-                {renderDocumentView(po, poMarks, "No PO provided")}
-              </div>
-            )}
-          </div>
-
-          {/* Document 3: Receiving Note */}
-          <div className="flex flex-col gap-1.5 bg-zinc-900/60 border border-zinc-800 rounded-lg p-3.5">
-            <label
-              htmlFor="receipt-input"
-              className="text-xs font-semibold text-zinc-300 flex items-center justify-between"
-            >
-              <span>3. Receiving Note (what the dock accepted)</span>
-              <span className="text-[10px] text-zinc-500 font-normal">
-                Dock count by Marta Ruiz
-              </span>
-            </label>
-            {isEditing || !result ? (
-              <textarea
-                id="receipt-input"
-                rows={7}
-                value={receipt}
-                onChange={(e) => handleTextChange(setReceipt, e.target.value)}
-                placeholder="Paste receiving note text..."
-                className="w-full bg-zinc-950 font-mono text-xs text-zinc-200 border border-zinc-800 rounded p-2.5 focus:outline-none focus:border-emerald-500/50 resize-y"
-              />
-            ) : (
-              <div className="bg-zinc-950 p-3 rounded border border-zinc-800/80 max-h-60 overflow-y-auto">
-                {renderDocumentView(
-                  receipt,
-                  receiptMarks,
-                  "No receiving note provided"
-                )}
-              </div>
-            )}
-          </div>
+          ))}
 
           {/* Action Row & Color Legend */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <button
               onClick={runCheck}
               disabled={isLoading}
-              className={`px-5 py-2.5 rounded-lg text-xs font-semibold tracking-wide flex items-center justify-center gap-2 shadow-sm transition-all ${
+              className={`btn px-7 py-3.5 text-xs flex items-center justify-center gap-2 ${
                 isLoading
-                  ? "bg-zinc-800 text-zinc-400 cursor-not-allowed"
-                  : "bg-emerald-600 hover:bg-emerald-500 text-white cursor-pointer"
+                  ? "bg-panel text-muted border border-line cursor-not-allowed"
+                  : "bg-accent text-on-accent hover:bg-accent-deep shadow-[0_10px_24px_-12px_rgb(47_111_106/0.8)] cursor-pointer"
               }`}
             >
               {isLoading ? (
                 <>
                   <svg
-                    className="animate-spin h-3.5 w-3.5 text-zinc-400"
+                    className="animate-spin h-3.5 w-3.5"
                     viewBox="0 0 24 24"
                     fill="none"
                   >
@@ -509,26 +601,26 @@ export default function PaylockPage() {
                   <span>Reading with Clocked…</span>
                 </>
               ) : (
-                <span>Check invoice</span>
+                <span>Check invoice →</span>
               )}
             </button>
 
             {/* Legend */}
-            <div className="flex flex-wrap items-center gap-3 text-[11px] text-zinc-400">
+            <div className="flex flex-wrap items-center gap-4 text-[11px] text-fg/80">
               <span className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-sm bg-emerald-500/40 border border-emerald-500 inline-block" />
+                <span className="w-3 h-3 bg-accent/30 border-b-2 border-accent inline-block" />
                 Ledger verified
               </span>
               <span className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-sm bg-rose-500/40 border border-rose-500 inline-block" />
+                <span className="w-3 h-3 rounded-sm bg-alarm/30 inline-block" />
                 Guard removed
               </span>
               <span className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-sm bg-zinc-700 border border-zinc-500 inline-block" />
-                █ Masked PII
+                <span className="font-mono">█</span>
+                Masked bank details
               </span>
               <span className="flex items-center gap-1.5">
-                <span className="line-through text-rose-400 font-bold">abc</span>
+                <span className="line-through decoration-2 text-alarm font-bold">abc</span>
                 Unbacked claim
               </span>
             </div>
@@ -536,7 +628,10 @@ export default function PaylockPage() {
 
           {/* Error Alert */}
           {errorMsg && (
-            <div className="p-3 bg-rose-950/80 border border-rose-800 rounded-lg text-xs text-rose-200">
+            <div
+              role="alert"
+              className="p-3.5 rounded-xl bg-alarm-soft border border-alarm/40 text-reject-ink text-xs font-medium"
+            >
               {errorMsg}
             </div>
           )}
@@ -545,215 +640,183 @@ export default function PaylockPage() {
         {/* ========================================================= */}
         {/* RIGHT COLUMN: Results & Gate Decision */}
         {/* ========================================================= */}
-        <section
-          aria-live="polite"
-          className="p-5 flex flex-col gap-4 overflow-y-auto bg-zinc-950"
-        >
-          {/* 1. Model Decide Banner */}
-          <div className="flex items-center justify-between p-3 rounded-lg bg-zinc-900 border border-zinc-800 text-xs">
-            <span className="text-zinc-400">Decide model analysis:</span>
-            {decision?.modelRecommendation ? (
-              <span className="font-semibold text-zinc-200 flex items-center gap-1.5">
-                Clocked Decide recommends{" "}
-                <span
-                  className={
-                    decision.modelRecommendation.choice === "PAY"
-                      ? "text-emerald-400 font-bold"
-                      : decision.modelRecommendation.choice === "HOLD"
-                        ? "text-amber-400 font-bold"
-                        : "text-rose-400 font-bold"
-                  }
-                >
-                  {decision.modelRecommendation.choice}
-                </span>{" "}
-                · {Math.round(decision.modelRecommendation.probability * 100)}%
-              </span>
-            ) : (
-              <span className="text-zinc-500 italic">Run check to evaluate</span>
-            )}
-          </div>
-
-          {/* 2. Overruled Banner */}
-          {isOverruled && (
-            <div className="p-3 rounded-lg bg-amber-950/70 border border-amber-600/80 text-amber-200 text-xs flex items-center gap-2 font-medium animate-fadeIn">
-              <span className="text-amber-400 text-base font-bold">⚠</span>
-              <span>
-                The model said PAY. The ledger disagrees, so the button stays locked.
-              </span>
-            </div>
-          )}
-
-          {/* 3. The Button */}
-          <div className="flex flex-col gap-1.5">
-            {decision ? (
-              decision.button === "PAY" ? (
-                <button
-                  onClick={() => setPaidDemo(true)}
-                  aria-describedby="paylock-reasons"
-                  className={`w-full py-3.5 px-4 rounded-lg font-bold text-sm tracking-wide shadow-lg transition-all ${
-                    paidDemo
-                      ? "bg-emerald-800 text-emerald-200 cursor-default"
-                      : "bg-emerald-600 hover:bg-emerald-500 text-white cursor-pointer"
-                  }`}
-                >
-                  {paidDemo
-                    ? "✓ Queued for the payment run (demo)"
-                    : `Pay $${(
-                        (decision.payableCents ?? 0) / 100
-                      ).toLocaleString("en-US", {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })}`}
-                </button>
-              ) : decision.button === "HOLD" ? (
-                <button
-                  disabled
-                  aria-describedby="paylock-reasons"
-                  className="w-full py-3 px-4 rounded-lg bg-amber-600/90 text-white cursor-not-allowed opacity-90 shadow text-left flex flex-col items-center justify-center gap-0.5"
-                >
-                  <span className="font-bold text-sm tracking-wider uppercase">
-                    PAYMENT HELD
-                  </span>
-                  {decision.reasons[0] && (
-                    <span className="text-[11px] opacity-90 font-normal truncate max-w-full">
-                      {decision.reasons[0].text}
-                    </span>
-                  )}
-                </button>
-              ) : (
-                <button
-                  disabled
-                  aria-describedby="paylock-reasons"
-                  className="w-full py-3 px-4 rounded-lg bg-rose-600/90 text-white cursor-not-allowed opacity-90 shadow text-left flex flex-col items-center justify-center gap-0.5"
-                >
-                  <span className="font-bold text-sm tracking-wider uppercase">
-                    PAYMENT REJECTED
-                  </span>
-                  {decision.reasons[0] && (
-                    <span className="text-[11px] opacity-90 font-normal truncate max-w-full">
-                      {decision.reasons[0].text}
-                    </span>
-                  )}
-                </button>
-              )
-            ) : (
-              <div className="w-full py-3.5 px-4 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-500 font-medium text-xs text-center">
-                Button is locked pending document check
+        <section aria-live="polite" className="flex flex-col gap-6 min-w-0">
+          {/* Decision receipt */}
+          <div className="drop-shadow-[0_22px_36px_rgb(43_52_64/0.16)]">
+            <div className="receipt bg-paper text-ink rounded-t-2xl px-6 pt-6 flex flex-col gap-5">
+              <div className="flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.16em] text-muted border-b border-dashed border-line pb-3">
+                <span>Paylock · gate receipt</span>
+                <span>{selectedCaseId || "custom"}</span>
               </div>
-            )}
-          </div>
 
-          {/* 4. Why: Reasons List */}
-          <div className="flex flex-col gap-2">
-            <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
-              Why ({decision?.reasons.length ?? 0} reasons)
-            </span>
-            <div
-              id="paylock-reasons"
-              className="space-y-1.5 max-h-44 overflow-y-auto"
-            >
-              {decision && decision.reasons.length > 0 ? (
-                decision.reasons.map((r, i) => {
-                  const tagColors: Record<string, string> = {
-                    ledger: "bg-blue-950 text-blue-300 border-blue-800",
-                    guard: "bg-rose-950 text-rose-300 border-rose-800",
-                    compare: "bg-purple-950 text-purple-300 border-purple-800",
-                    verify: "bg-amber-950 text-amber-300 border-amber-800",
-                    decide: "bg-indigo-950 text-indigo-300 border-indigo-800",
-                    system: "bg-zinc-800 text-zinc-300 border-zinc-700",
-                  };
-                  return (
-                    <div
-                      key={i}
-                      className="p-2 rounded bg-zinc-900/80 border border-zinc-800 text-xs text-zinc-300 flex items-start gap-2"
-                    >
-                      <span
-                        className={`text-[9px] font-mono uppercase px-1.5 py-0.5 rounded border font-semibold ${
-                          tagColors[r.tag] || "bg-zinc-800 text-zinc-300"
-                        }`}
-                      >
-                        {r.tag}
-                      </span>
-                      <span className="flex-1 leading-snug">{r.text}</span>
-                    </div>
-                  );
-                })
-              ) : (
-                <div className="text-xs text-zinc-500 italic p-2 bg-zinc-900/40 rounded border border-zinc-800/60">
-                  {decision?.button === "PAY"
-                    ? "All checks passed. Billed amounts match agreed PO and dock counts."
-                    : "No run executed yet."}
+              {/* 1. Model Decide */}
+              <div className="flex items-center justify-between gap-4 min-h-20">
+                <div className="flex flex-col gap-1.5">
+                  <span className="tag text-muted">Clocked Decide says</span>
+                  <span className="font-mono text-xs text-muted">
+                    {decision?.modelRecommendation
+                      ? `${Math.round(decision.modelRecommendation.probability * 100)}% probability`
+                      : "Run a check to evaluate"}
+                  </span>
+                </div>
+                {decision?.modelRecommendation ? (
+                  <span
+                    className={`stamp text-5xl ${
+                      VERDICT_STAMP[decision.modelRecommendation.choice] ?? "text-ink"
+                    }`}
+                  >
+                    {decision.modelRecommendation.choice}
+                  </span>
+                ) : (
+                  <span className="stamp text-5xl text-muted/70">—</span>
+                )}
+              </div>
+
+              {/* 2. Overruled Banner */}
+              {isOverruled && (
+                <div className="p-3 rounded-lg bg-signal-soft border border-signal/50 text-hold-ink text-xs font-semibold flex items-center gap-2.5">
+                  <span className="text-base">⚠</span>
+                  <span>
+                    The model said PAY. The ledger disagrees, so the button
+                    stays locked.
+                  </span>
                 </div>
               )}
+
+              {/* 3. The Button */}
+              {decision ? (
+                decision.button === "PAY" ? (
+                  <button
+                    onClick={() => setPaidDemo(true)}
+                    aria-describedby="paylock-reasons"
+                    className={`w-full py-4 px-4 rounded-xl font-mono font-semibold uppercase tracking-[0.12em] text-sm transition-all ${
+                      paidDemo
+                        ? "bg-mint-soft text-pay-ink border border-mint/40 cursor-default"
+                        : "bg-mint text-on-accent hover:bg-mint-deep shadow-[0_10px_24px_-12px_rgb(78_143_107/0.9)] cursor-pointer"
+                    }`}
+                  >
+                    {paidDemo
+                      ? "✓ Queued for the payment run (demo)"
+                      : `Pay $${money(decision.payableCents ?? 0)}`}
+                  </button>
+                ) : (
+                  <button
+                    disabled
+                    aria-describedby="paylock-reasons"
+                    className={`w-full py-3.5 px-4 rounded-xl cursor-not-allowed flex flex-col items-center justify-center gap-1 border ${
+                      decision.button === "HOLD"
+                        ? "bg-signal-soft text-hold-ink border-signal"
+                        : "bg-alarm-soft text-reject-ink border-alarm"
+                    }`}
+                  >
+                    <span className="font-mono font-semibold text-sm tracking-[0.12em] uppercase">
+                      {decision.button === "HOLD" ? "🔒 Payment held" : "✕ Payment rejected"}
+                    </span>
+                    {decision.reasons[0] && (
+                      <span className="text-[11px] text-fg/90 truncate max-w-full">
+                        {decision.reasons[0].text}
+                      </span>
+                    )}
+                  </button>
+                )
+              ) : (
+                <div className="w-full py-4 px-4 rounded-xl border border-dashed border-line text-muted font-mono text-[11px] uppercase tracking-[0.12em] text-center">
+                  Button locked pending document check
+                </div>
+              )}
+
+              {/* 4. Why: Reasons List */}
+              <div className="flex flex-col gap-3 border-t border-dashed border-line pt-4">
+                <span className="tag text-muted">
+                  Why · {decision?.reasons.length ?? 0} reasons
+                </span>
+                <div
+                  id="paylock-reasons"
+                  className="space-y-2.5 max-h-60 overflow-y-auto pr-1"
+                >
+                  {decision && decision.reasons.length > 0 ? (
+                    decision.reasons.map((r, i) => (
+                      <div
+                        key={i}
+                        className="text-xs text-fg flex items-start gap-2.5"
+                      >
+                        <span
+                          className={`shrink-0 w-16 text-center text-[9px] font-mono font-semibold uppercase tracking-wider py-0.5 rounded-full border ${
+                            REASON_TAG[r.tag] ?? REASON_TAG.system
+                          }`}
+                        >
+                          {r.tag}
+                        </span>
+                        <span className="flex-1 leading-snug break-words">{r.text}</span>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-xs text-muted italic">
+                      {decision?.button === "PAY"
+                        ? "All checks passed. Billed amounts match agreed PO and dock counts."
+                        : "No run executed yet."}
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
 
           {/* 5. Ledger Table */}
-          <div className="flex flex-col gap-2">
-            <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400 flex items-center justify-between">
-              <span>Three-Way Match Ledger</span>
+          <div className="card overflow-hidden">
+            <div className="flex items-center justify-between px-5 py-3 border-b border-line">
+              <span className="tag text-muted">Three-way match ledger</span>
               {result?.ledger && (
-                <span className="text-[11px] font-mono text-emerald-400 font-normal">
-                  Payable: $
-                  {(result.ledger.payableCents / 100).toLocaleString("en-US", {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })}
+                <span className="text-[11px] font-mono font-semibold rounded-full bg-accent/15 text-accent border border-accent/40 px-2.5 py-0.5">
+                  Payable ${money(result.ledger.payableCents)}
                 </span>
               )}
-            </span>
+            </div>
 
-            <div className="overflow-x-auto border border-zinc-800 rounded-lg">
-              <table className="w-full text-left text-[11px] font-mono divide-y divide-zinc-800">
-                <thead className="bg-zinc-900 text-zinc-400">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-[11px] font-mono">
+                <thead className="text-muted uppercase text-[9.5px] tracking-wider border-b border-line">
                   <tr>
-                    <th className="py-1.5 px-2 font-medium">Item</th>
-                    <th className="py-1.5 px-2 font-medium">Billed</th>
-                    <th className="py-1.5 px-2 font-medium">Ord</th>
-                    <th className="py-1.5 px-2 font-medium">Acc</th>
-                    <th className="py-1.5 px-2 font-medium">Inv $</th>
-                    <th className="py-1.5 px-2 font-medium">PO $</th>
-                    <th className="py-1.5 px-2 font-medium">Total</th>
+                    <th className="py-2 px-3 font-semibold">Item</th>
+                    <th className="py-2 px-2 font-semibold">Billed</th>
+                    <th className="py-2 px-2 font-semibold">Ord</th>
+                    <th className="py-2 px-2 font-semibold">Acc</th>
+                    <th className="py-2 px-2 font-semibold">Inv $</th>
+                    <th className="py-2 px-2 font-semibold">PO $</th>
+                    <th className="py-2 px-3 font-semibold">Total</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-zinc-800/60 bg-zinc-950">
+                <tbody className="divide-y divide-line">
                   {result?.ledger && result.ledger.lines.length > 0 ? (
                     result.ledger.lines.map((l, i) => {
                       const hasIssue = l.issues.length > 0;
                       return (
-                        <tr
-                          key={i}
-                          className={
-                            hasIssue
-                              ? "bg-rose-950/25 text-rose-200"
-                              : "text-zinc-300"
-                          }
-                        >
-                          <td className="py-1.5 px-2 font-bold">{l.item_code}</td>
+                        <tr key={i} className={hasIssue ? "bg-alarm-soft" : ""}>
+                          <td className="py-2.5 px-3 font-semibold">{l.item_code}</td>
                           <td
-                            className={`py-1.5 px-2 ${
-                              l.billed > l.accepted ? "font-bold text-rose-400" : ""
+                            className={`py-2.5 px-2 ${
+                              l.billed > l.accepted ? "font-bold text-reject-ink" : ""
                             }`}
                           >
                             {l.billed}
                           </td>
-                          <td className="py-1.5 px-2">{l.ordered}</td>
-                          <td className="py-1.5 px-2 text-emerald-400">
+                          <td className="py-2.5 px-2">{l.ordered}</td>
+                          <td className="py-2.5 px-2 font-bold text-accent">
                             {l.accepted}
                           </td>
                           <td
-                            className={`py-1.5 px-2 ${
+                            className={`py-2.5 px-2 ${
                               l.invoice_price_cents > l.po_price_cents
-                                ? "font-bold text-rose-400"
+                                ? "font-bold text-reject-ink"
                                 : ""
                             }`}
                           >
                             {(l.invoice_price_cents / 100).toFixed(2)}
                           </td>
-                          <td className="py-1.5 px-2">
+                          <td className="py-2.5 px-2">
                             {(l.po_price_cents / 100).toFixed(2)}
                           </td>
-                          <td className="py-1.5 px-2 font-semibold">
+                          <td className="py-2.5 px-3 font-bold">
                             {(l.recomputed_amount_cents / 100).toFixed(2)}
                           </td>
                         </tr>
@@ -763,7 +826,7 @@ export default function PaylockPage() {
                     <tr>
                       <td
                         colSpan={7}
-                        className="py-3 px-2 text-center text-zinc-500 italic font-sans"
+                        className="py-5 px-2 text-center text-muted italic font-sans"
                       >
                         No ledger data
                       </td>
@@ -775,26 +838,27 @@ export default function PaylockPage() {
           </div>
 
           {/* 6. Where Documents Disagree (Compare Conflicts) */}
-          <div className="flex flex-col gap-1.5">
-            <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
-              Where Documents Disagree (Compare)
-            </span>
-            <div className="p-2.5 rounded-lg bg-zinc-900 border border-zinc-800 text-xs">
+          <div className="card p-5 flex flex-col gap-3">
+            <span className="tag text-muted">Where the documents disagree</span>
+            <div className="text-xs">
               {result?.checks?.compare?.ok ? (
                 (() => {
                   const conflicts =
                     result.decision.reasons.filter((r) => r.tag === "compare");
                   if (conflicts.length === 0) {
                     return (
-                      <span className="text-zinc-500 italic">
+                      <span className="font-serif italic text-lg text-muted">
                         No disagreements about what was delivered.
                       </span>
                     );
                   }
                   return (
-                    <div className="space-y-1">
+                    <div className="space-y-2">
                       {conflicts.map((c, i) => (
-                        <p key={i} className="text-purple-300 font-mono text-[11px]">
+                        <p
+                          key={i}
+                          className="font-mono text-[11px] text-fg/85 rounded-lg bg-accent/10 border-l-2 border-accent p-2.5 whitespace-pre-wrap break-words"
+                        >
                           {c.text}
                         </p>
                       ))}
@@ -802,7 +866,7 @@ export default function PaylockPage() {
                   );
                 })()
               ) : (
-                <span className="text-zinc-500 italic">
+                <span className="font-serif italic text-lg text-muted">
                   Compare findings will appear here.
                 </span>
               )}
@@ -810,52 +874,43 @@ export default function PaylockPage() {
           </div>
 
           {/* 7. Clerk Note & Question for Vendor */}
-          <div className="grid grid-cols-1 gap-2.5">
-            {/* Clerk note */}
-            <div className="p-3 rounded-lg bg-zinc-900 border border-zinc-800 text-xs flex flex-col gap-1.5">
+          {[
+            {
+              title: "Clerk note",
+              body: renderClerkNote(result?.clerkNote ?? "", result?.clerkNoteClaims),
+            },
+            {
+              title: "Question for the vendor",
+              body: result?.vendorQuestion || (
+                <span className="text-muted italic">None generated</span>
+              ),
+            },
+          ].map((b) => (
+            <div key={b.title} className="card p-5 flex flex-col gap-3">
               <div className="flex items-center justify-between">
-                <span className="font-semibold text-zinc-300">Clerk Note</span>
-                <span className="text-[9px] uppercase tracking-wider bg-zinc-800 text-zinc-400 px-1.5 py-0.5 rounded border border-zinc-700">
-                  Generated (Fill)
+                <span className="tag text-muted">{b.title}</span>
+                <span className="text-[9.5px] font-mono font-semibold uppercase tracking-wider rounded-full bg-accent/15 text-accent px-2 py-0.5">
+                  Generated · Fill
                 </span>
               </div>
-              <div className="text-zinc-300 leading-relaxed text-[11px]">
-                {renderClerkNote(result?.clerkNote ?? "", result?.clerkNoteClaims)}
-              </div>
+              <div className="font-serif text-[19px] leading-snug text-fg/90">{b.body}</div>
             </div>
-
-            {/* Vendor question */}
-            <div className="p-3 rounded-lg bg-zinc-900 border border-zinc-800 text-xs flex flex-col gap-1.5">
-              <div className="flex items-center justify-between">
-                <span className="font-semibold text-zinc-300">
-                  Question for Vendor
-                </span>
-                <span className="text-[9px] uppercase tracking-wider bg-zinc-800 text-zinc-400 px-1.5 py-0.5 rounded border border-zinc-700">
-                  Generated (Fill)
-                </span>
-              </div>
-              <p className="text-zinc-300 leading-relaxed text-[11px]">
-                {result?.vendorQuestion || (
-                  <span className="text-zinc-500 italic">None generated</span>
-                )}
-              </p>
-            </div>
-          </div>
+          ))}
 
           {/* 8. Footer */}
-          <div className="pt-2 border-t border-zinc-800 text-[11px] text-zinc-500 flex flex-col gap-1">
-            <div className="flex items-center justify-between">
+          <div className="border-t border-line pt-3 text-[11px] text-muted flex flex-col gap-1.5">
+            <div className="flex items-center justify-between font-mono">
               <span>
                 Usage:{" "}
                 {result?.decision?.totalCredits !== undefined
                   ? `${result.decision.totalCredits} credits`
                   : "0 credits"}
               </span>
-              <span className="font-mono text-zinc-600">
+              <span>
                 {result?.checks.decide.replayed ? "Replayed from disk" : "Live Clocked API"}
               </span>
             </div>
-            <p className="italic text-zinc-500">
+            <p className="font-serif italic text-base text-fg">
               Paylock never moves money. Approval stays in your AP system.
             </p>
           </div>

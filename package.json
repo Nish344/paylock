@@ -8,8 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
-    "eval": "tsx --env-file=.env.local scripts/eval.ts",
-    "probe": "tsx --env-file=.env.local scripts/probe.ts"
+    "eval": "tsx --env-file-if-exists=.env.local scripts/eval.ts",
+    "probe": "tsx --env-file-if-exists=.env.local scripts/probe.ts"
   },
   "dependencies": {
     "next": "16.4.5",

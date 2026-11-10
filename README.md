@@ -1,5 +1,7 @@
 # Paylock
 
+![Paylock: the model may say pay, the dock decides](docs/images/cover.jpg)
+
 > **The model may recommend PAY. The button only pays if the dock and the purchase order agree.**
 >
 > *Target award: Best Use of Decide, Extract, or Fill ($400). Also entered for Best Overall and People's Choice.*
@@ -32,6 +34,8 @@ Paylock enforces an asymmetric trust model with two distinct **Verify** calls:
 ---
 
 ## 3. How It Works (Four-Phase Architecture)
+
+![Four phases, then a gate that can only turn PAY into HOLD](docs/images/architecture.svg)
 
 ```mermaid
 flowchart TD
