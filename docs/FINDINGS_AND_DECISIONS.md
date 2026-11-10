@@ -72,3 +72,4 @@ This document records all architectural decisions, reality checks, differences f
 - **Unit Tests:** `pnpm test` → 27 passing tests across 4 test suites (`clocked`, `spans`, `ledger`, `policy`).
 - **Evaluation Runner:** `pnpm eval` → 8/8 pass in both live and replay mode.
 - **Build & Lint:** `pnpm lint && pnpm build` → 0 errors, 0 warnings.
+
