@@ -35,44 +35,7 @@ Paylock enforces an asymmetric trust model with two distinct **Verify** calls:
 
 ## 3. How It Works (Four-Phase Architecture)
 
-![Four phases, then a gate that can only turn PAY into HOLD](docs/images/architecture.svg)
-
-```mermaid
-flowchart TD
-    subgraph P1["Phase 1: Parallel Ingestion"]
-        G["Guard (/clocked/injection)<br/>Screen invoice for prompt attacks"]
-        P["Protect (/clocked/pii)<br/>Locate bank account and routing numbers"]
-        E1["Extract (/clocked/extract)<br/>Invoice quantities, prices, totals & spans"]
-        E2["Extract (/clocked/extract)<br/>PO line items, quantities & prices"]
-        E3["Extract (/clocked/extract)<br/>Receiving note accepted dock counts"]
-    end
-
-    subgraph Mid["Local Reconciliation"]
-        Mask["Mask Clean Invoice<br/>(Redact Guard injection & Protect PII)"]
-        Ledger["Build Ledger<br/>Verify spans verbatim, match codes & run arithmetic"]
-    end
-
-    subgraph P2["Phase 2: Independent Review"]
-        C["Compare (/clocked/compare)<br/>Semantic mismatches: pack size, grade, brand"]
-        D["Decide (/clocked/decide)<br/>Model opinion: PAY, HOLD, or REJECT"]
-    end
-
-    subgraph P3["Phase 3: Synthesis"]
-        F["Fill (/clocked/fill)<br/>Extract vendor claims & generate clerk note"]
-    end
-
-    subgraph P4["Phase 4: Grounding & Invariant Gate"]
-        V1["Verify Vendor Claims<br/>Checked against PO + Dock note only"]
-        V2["Verify Clerk Note<br/>Checked against all docs + Ledger"]
-        Gate{"decidePay() Gate<br/>Can only downgrade PAY to HOLD"}
-    end
-
-    P1 --> Mid
-    Mid --> P2
-    P2 --> P3
-    P3 --> P4
-    Gate --> Button["Pay Button State:<br/>PAY (amount) | HOLD (reason) | REJECT"]
-```
+![Four phases, a local ledger, then a gate that can only turn PAY into HOLD](docs/images/architecture.svg)
 
 ---
 

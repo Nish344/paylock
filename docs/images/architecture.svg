@@ -1,127 +1,154 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1380 700" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1140 1040" role="img" aria-labelledby="title desc">
   <title id="title">Paylock architecture</title>
-  <desc id="desc">Four phases of Clocked calls, then a gate that can only turn a PAY into a HOLD.</desc>
-  <rect width="1380" height="700" fill="#141311"/>
+  <desc id="desc">Four phases of Clocked calls, a local ledger, and a gate that can only turn PAY into HOLD.</desc>
+  <rect width="1140" height="1040" fill="#141311"/>
 
-  <text x="48" y="52" fill="#7dccc2" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="12" letter-spacing="3">PAYLOCK</text>
-  <text x="48" y="98" fill="#f4f0e6" font-family="Georgia, 'Times New Roman', serif" font-size="36">Four phases. One gate.</text>
-  <text x="48" y="128" fill="#d6d0c4" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13">Clocked reads the documents. Ordinary code decides whether the button pays.</text>
+  <text x="32" y="48" fill="#7dccc2" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="12" letter-spacing="3">PAYLOCK</text>
+  <text x="32" y="92" fill="#f4f0e6" font-family="Georgia, 'Times New Roman', serif" font-size="34">Four phases. One gate.</text>
+  <text x="32" y="120" fill="#d6d0c4" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13">Clocked reads the documents. Ordinary code decides whether the button pays.</text>
 
-  <!-- cards -->
   <g font-family="ui-monospace, SFMono-Regular, Menlo, monospace">
-    <!-- 01 -->
-    <g transform="translate(48,176)">
-      <rect width="210" height="440" rx="16" fill="#1e1c19" stroke="#3c3832"/>
-      <text x="20" y="36" fill="#7dccc2" font-size="11" letter-spacing="1.5">01 &#183; PARALLEL</text>
-      <text x="20" y="70" fill="#f4f0e6" font-family="Georgia, serif" font-size="26">Ingest</text>
+    <!-- 01 Ingest -->
+    <g transform="translate(32,152)">
+      <rect width="390" height="460" rx="16" fill="#1e1c19" stroke="#3c3832"/>
+      <text x="20" y="34" fill="#7dccc2" font-size="11" letter-spacing="1.5">01 &#183; PARALLEL</text>
+      <text x="20" y="66" fill="#f4f0e6" font-family="Georgia, serif" font-size="26">Ingest</text>
       <g fill="#2a2723">
-        <rect x="16" y="98" width="178" height="52" rx="8"/>
-        <rect x="16" y="158" width="178" height="52" rx="8"/>
-        <rect x="16" y="218" width="178" height="52" rx="8"/>
-        <rect x="16" y="278" width="178" height="52" rx="8"/>
-        <rect x="16" y="338" width="178" height="52" rx="8"/>
+        <rect x="16" y="88" width="358" height="64" rx="8"/>
+        <rect x="16" y="160" width="358" height="64" rx="8"/>
+        <rect x="16" y="232" width="358" height="64" rx="8"/>
+        <rect x="16" y="304" width="358" height="64" rx="8"/>
+        <rect x="16" y="376" width="358" height="64" rx="8"/>
       </g>
       <g fill="#f4f0e6" font-size="13">
-        <text x="28" y="120">Guard</text>
-        <text x="28" y="180">Protect</text>
-        <text x="28" y="240">Extract</text>
-        <text x="28" y="300">Extract</text>
-        <text x="28" y="360">Extract</text>
+        <text x="28" y="112">Guard</text>
+        <text x="28" y="184">Protect</text>
+        <text x="28" y="256">Extract</text>
+        <text x="28" y="328">Extract</text>
+        <text x="28" y="400">Extract</text>
       </g>
-      <g fill="#d6d0c4" font-size="11">
-        <text x="28" y="138">prompt attacks</text>
-        <text x="28" y="198">bank numbers</text>
-        <text x="28" y="258">the invoice</text>
-        <text x="28" y="318">the purchase order</text>
-        <text x="28" y="378">the receiving note</text>
+      <g fill="#7dccc2" font-size="11">
+        <text x="78" y="112">/clocked/injection</text>
+        <text x="92" y="184">/clocked/pii</text>
+        <text x="90" y="256">/clocked/extract</text>
+        <text x="90" y="328">/clocked/extract</text>
+        <text x="90" y="400">/clocked/extract</text>
+      </g>
+      <g fill="#d6d0c4" font-size="12">
+        <text x="28" y="134">Screens the invoice for prompt attacks.</text>
+        <text x="28" y="206">Finds account and routing numbers.</text>
+        <text x="28" y="278">Invoice lines, prices, totals, and spans.</text>
+        <text x="28" y="350">PO lines, quantities, and prices.</text>
+        <text x="28" y="422">Accepted counts on the receiving note.</text>
       </g>
     </g>
 
-    <!-- 02 -->
-    <g transform="translate(402,176)">
-      <rect width="210" height="440" rx="16" fill="#1e1c19" stroke="#3c3832"/>
-      <text x="20" y="36" fill="#7dccc2" font-size="11" letter-spacing="1.5">02 &#183; PARALLEL</text>
-      <text x="20" y="70" fill="#f4f0e6" font-family="Georgia, serif" font-size="26">Review</text>
+    <!-- ordinary code -->
+    <g transform="translate(450,152)">
+      <rect width="270" height="460" rx="16" fill="#1e1c19" stroke="#7dccc2" stroke-dasharray="4 3"/>
+      <text x="20" y="34" fill="#7dccc2" font-size="11" letter-spacing="1.5">IN CODE</text>
+      <text x="20" y="66" fill="#f4f0e6" font-family="Georgia, serif" font-size="26">Reconcile</text>
       <g fill="#2a2723">
-        <rect x="16" y="98" width="178" height="52" rx="8"/>
-        <rect x="16" y="158" width="178" height="52" rx="8"/>
+        <rect x="16" y="96" width="238" height="150" rx="8"/>
+        <rect x="16" y="258" width="238" height="168" rx="8"/>
       </g>
-      <g fill="#f4f0e6" font-size="13">
-        <text x="28" y="120">Compare</text>
-        <text x="28" y="180">Decide</text>
-      </g>
-      <g fill="#d6d0c4" font-size="11">
-        <text x="28" y="138">what the item is</text>
-        <text x="28" y="198">PAY, HOLD, REJECT</text>
-      </g>
-      <text x="20" y="250" fill="#d6d0c4" font-size="12">Decide never sees</text>
-      <text x="20" y="268" fill="#d6d0c4" font-size="12">the ledger.</text>
+      <text x="28" y="122" fill="#f4f0e6" font-size="13">Mask the invoice</text>
+      <text x="28" y="146" fill="#d6d0c4" font-size="12">Redact Guard evidence and</text>
+      <text x="28" y="164" fill="#d6d0c4" font-size="12">Protect spans. The length</text>
+      <text x="28" y="182" fill="#d6d0c4" font-size="12">stays the same, so later</text>
+      <text x="28" y="200" fill="#d6d0c4" font-size="12">offsets still match.</text>
+      <text x="28" y="284" fill="#f4f0e6" font-size="13">Build the ledger</text>
+      <text x="28" y="308" fill="#d6d0c4" font-size="12">Accept a span only if it</text>
+      <text x="28" y="326" fill="#d6d0c4" font-size="12">matches the source. Match</text>
+      <text x="28" y="344" fill="#d6d0c4" font-size="12">item codes. Recompute</text>
+      <text x="28" y="362" fill="#d6d0c4" font-size="12">every line and the total.</text>
     </g>
 
-    <!-- 03 -->
-    <g transform="translate(648,176)">
-      <rect width="210" height="440" rx="16" fill="#1e1c19" stroke="#3c3832"/>
-      <text x="20" y="36" fill="#7dccc2" font-size="11" letter-spacing="1.5">03</text>
-      <text x="20" y="70" fill="#f4f0e6" font-family="Georgia, serif" font-size="26">Write</text>
+    <!-- 02 Review -->
+    <g transform="translate(748,152)">
+      <rect width="360" height="460" rx="16" fill="#1e1c19" stroke="#3c3832"/>
+      <text x="20" y="34" fill="#7dccc2" font-size="11" letter-spacing="1.5">02 &#183; PARALLEL</text>
+      <text x="20" y="66" fill="#f4f0e6" font-family="Georgia, serif" font-size="26">Review</text>
       <g fill="#2a2723">
-        <rect x="16" y="98" width="178" height="64" rx="8"/>
+        <rect x="16" y="96" width="328" height="110" rx="8"/>
+        <rect x="16" y="218" width="328" height="128" rx="8"/>
       </g>
-      <text x="28" y="124" fill="#f4f0e6" font-size="13">Fill</text>
-      <text x="28" y="144" fill="#d6d0c4" font-size="11">claims, clerk note,</text>
-      <text x="28" y="158" fill="#d6d0c4" font-size="11">question</text>
+      <text x="28" y="122" fill="#f4f0e6" font-size="13">Compare</text>
+      <text x="104" y="122" fill="#7dccc2" font-size="11">/clocked/compare</text>
+      <text x="28" y="146" fill="#d6d0c4" font-size="12">Pack size, grade, brand, buyer.</text>
+      <text x="28" y="164" fill="#d6d0c4" font-size="12">Ignores quantities and prices.</text>
+      <text x="28" y="182" fill="#d6d0c4" font-size="12">Only invoice conflicts count.</text>
+      <text x="28" y="244" fill="#f4f0e6" font-size="13">Decide</text>
+      <text x="88" y="244" fill="#7dccc2" font-size="11">/clocked/decide</text>
+      <text x="28" y="268" fill="#d6d0c4" font-size="12">PAY, HOLD, or REJECT,</text>
+      <text x="28" y="286" fill="#d6d0c4" font-size="12">with a probability.</text>
+      <text x="28" y="312" fill="#e2b45e" font-size="12">Never sees the ledger.</text>
+      <text x="20" y="390" fill="#d6d0c4" font-size="12">Reads the masked invoice,</text>
+      <text x="20" y="408" fill="#d6d0c4" font-size="12">the PO, and the dock note.</text>
     </g>
 
-    <!-- 04 -->
-    <g transform="translate(894,176)">
-      <rect width="210" height="440" rx="16" fill="#1e1c19" stroke="#3c3832"/>
-      <text x="20" y="36" fill="#7dccc2" font-size="11" letter-spacing="1.5">04 &#183; PARALLEL</text>
-      <text x="20" y="70" fill="#f4f0e6" font-family="Georgia, serif" font-size="26">Ground</text>
+    <!-- 03 Write -->
+    <g transform="translate(32,680)">
+      <rect width="360" height="300" rx="16" fill="#1e1c19" stroke="#3c3832"/>
+      <text x="20" y="34" fill="#7dccc2" font-size="11" letter-spacing="1.5">03</text>
+      <text x="20" y="66" fill="#f4f0e6" font-family="Georgia, serif" font-size="26">Write</text>
+      <rect x="16" y="88" width="328" height="188" rx="8" fill="#2a2723"/>
+      <text x="28" y="114" fill="#f4f0e6" font-size="13">Fill</text>
+      <text x="64" y="114" fill="#7dccc2" font-size="11">/clocked/fill</text>
+      <text x="28" y="142" fill="#d6d0c4" font-size="12">Vendor claims, copied from</text>
+      <text x="28" y="160" fill="#d6d0c4" font-size="12">the invoice region only.</text>
+      <text x="28" y="186" fill="#d6d0c4" font-size="12">A clerk note, and one question</text>
+      <text x="28" y="204" fill="#d6d0c4" font-size="12">for the vendor.</text>
+      <text x="28" y="230" fill="#d6d0c4" font-size="12">Repeats the ledger numbers.</text>
+      <text x="28" y="248" fill="#d6d0c4" font-size="12">Never recomputes them.</text>
+    </g>
+
+    <!-- 04 Ground -->
+    <g transform="translate(420,680)">
+      <rect width="390" height="300" rx="16" fill="#1e1c19" stroke="#3c3832"/>
+      <text x="20" y="34" fill="#7dccc2" font-size="11" letter-spacing="1.5">04 &#183; PARALLEL</text>
+      <text x="20" y="66" fill="#f4f0e6" font-family="Georgia, serif" font-size="26">Ground</text>
       <g fill="#2a2723">
-        <rect x="16" y="98" width="178" height="64" rx="8"/>
-        <rect x="16" y="174" width="178" height="64" rx="8"/>
+        <rect x="16" y="88" width="358" height="90" rx="8"/>
+        <rect x="16" y="188" width="358" height="90" rx="8"/>
       </g>
-      <g fill="#f4f0e6" font-size="13">
-        <text x="28" y="122">Verify claims</text>
-        <text x="28" y="198">Verify the note</text>
-      </g>
-      <g fill="#d6d0c4" font-size="11">
-        <text x="28" y="140">PO and dock only</text>
-        <text x="28" y="216">docs plus the ledger</text>
-      </g>
+      <text x="28" y="112" fill="#f4f0e6" font-size="13">Verify claims</text>
+      <text x="140" y="112" fill="#7dccc2" font-size="11">/clocked/grounding</text>
+      <text x="28" y="136" fill="#d6d0c4" font-size="12">Checked only against the PO</text>
+      <text x="28" y="154" fill="#d6d0c4" font-size="12">and the receiving note.</text>
+      <text x="28" y="212" fill="#f4f0e6" font-size="13">Verify the note</text>
+      <text x="150" y="212" fill="#7dccc2" font-size="11">/clocked/grounding</text>
+      <text x="28" y="236" fill="#d6d0c4" font-size="12">Invoice, PO, dock note,</text>
+      <text x="28" y="254" fill="#d6d0c4" font-size="12">and the ledger findings.</text>
     </g>
 
     <!-- gate -->
-    <g transform="translate(1140,176)">
-      <rect width="200" height="440" rx="16" fill="#1e1c19" stroke="#7dccc2" stroke-width="1.5"/>
-      <text x="20" y="36" fill="#7dccc2" font-size="11" letter-spacing="1.5">THE GATE</text>
-      <text x="20" y="74" fill="#f4f0e6" font-family="Georgia, serif" font-size="26">decidePay</text>
-      <g font-size="12" font-weight="600">
-        <rect x="16" y="104" width="168" height="32" rx="16" fill="#1b3026"/>
-        <text x="100" y="125" fill="#8fbfa4" text-anchor="middle">PAY</text>
-        <rect x="16" y="146" width="168" height="32" rx="16" fill="#3a2e16"/>
-        <text x="100" y="167" fill="#e2b45e" text-anchor="middle">HOLD</text>
-        <rect x="16" y="188" width="168" height="32" rx="16" fill="#3a2320"/>
-        <text x="100" y="209" fill="#e08b83" text-anchor="middle">REJECT</text>
+    <g transform="translate(838,680)">
+      <rect width="270" height="300" rx="16" fill="#1e1c19" stroke="#7dccc2" stroke-width="1.5"/>
+      <text x="20" y="34" fill="#7dccc2" font-size="11" letter-spacing="1.5">THE GATE</text>
+      <text x="20" y="66" fill="#f4f0e6" font-family="Georgia, serif" font-size="26">decidePay</text>
+      <g font-size="12">
+        <rect x="16" y="84" width="238" height="28" rx="14" fill="#1b3026"/>
+        <text x="135" y="103" fill="#8fbfa4" text-anchor="middle">PAY &#183; recomputed total</text>
+        <rect x="16" y="118" width="238" height="28" rx="14" fill="#3a2e16"/>
+        <text x="135" y="137" fill="#e2b45e" text-anchor="middle">HOLD &#183; first reason</text>
+        <rect x="16" y="152" width="238" height="28" rx="14" fill="#3a2320"/>
+        <text x="135" y="171" fill="#e08b83" text-anchor="middle">REJECT</text>
       </g>
-      <text x="20" y="258" fill="#f4f0e6" font-family="Georgia, serif" font-size="15">Code can only</text>
-      <text x="20" y="280" fill="#f4f0e6" font-family="Georgia, serif" font-size="15">turn PAY into HOLD.</text>
-      <text x="20" y="312" fill="#d6d0c4" font-size="12">HOLD and REJECT</text>
-      <text x="20" y="330" fill="#d6d0c4" font-size="12">are always followed.</text>
+      <text x="20" y="210" fill="#f4f0e6" font-family="Georgia, serif" font-size="14">Code can only turn</text>
+      <text x="20" y="230" fill="#f4f0e6" font-family="Georgia, serif" font-size="14">PAY into HOLD.</text>
+      <text x="20" y="258" fill="#d6d0c4" font-size="12">HOLD and REJECT</text>
+      <text x="20" y="276" fill="#d6d0c4" font-size="12">are always followed.</text>
     </g>
   </g>
 
-  <!-- the one step that is not a model call -->
-  <g transform="translate(254,378)">
-    <rect width="150" height="36" rx="18" fill="#141311" stroke="#7dccc2" stroke-dasharray="3 3"/>
-    <text x="75" y="23" fill="#7dccc2" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="11" text-anchor="middle">mask &#183; ledger</text>
-  </g>
-
-  <!-- arrows -->
   <g fill="none" stroke="#7dccc2" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M616 396 h26 l-7 -6 m7 6 l-7 6"/>
-    <path d="M862 396 h26 l-7 -6 m7 6 l-7 6"/>
-    <path d="M1108 396 h26 l-7 -6 m7 6 l-7 6"/>
+    <path d="M422 382 h22 l-7 -6 m7 6 l-7 6"/>
+    <path d="M720 382 h22 l-7 -6 m7 6 l-7 6"/>
+    <path d="M392 830 h22 l-7 -6 m7 6 l-7 6"/>
+    <path d="M810 830 h22 l-7 -6 m7 6 l-7 6"/>
   </g>
 
-  <text x="48" y="660" fill="#d6d0c4" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="12">Teal marks a Clocked call. The dashed chip is ordinary code, and it is the only thing that can lock the button.</text>
+  <text x="32" y="652" fill="#d6d0c4" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="12">Passes forward: the masked invoice, the ledger, and Decide's answer. A failed call holds.</text>
+  <text x="32" y="1012" fill="#d6d0c4" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="12">Teal is a Clocked call. The dashed card is ordinary code, and it is the only thing that can lock the button.</text>
 </svg>
