@@ -65,6 +65,17 @@ export interface InvoiceConflictFormatted {
   quoteOther: string;
   otherDoc: string;
   sentence: string;
+  summary: string;
+}
+
+const ITEM_CODE = /\b[A-Z]{2,}-[A-Z0-9]+(?:-[A-Z0-9]+)*\b/;
+
+/** One readable line from a Compare passage, which can be a whole document. */
+export function shortQuote(quote: string, near = ""): string {
+  const lines = quote.split("\n").map((l) => l.trim().replace(/^\|\s*|\s*\|$/g, "")).filter(Boolean);
+  const code = near.match(ITEM_CODE)?.[0];
+  const line = (code && lines.find((l) => l.includes(code))) || lines[0] || "";
+  return line.length > 120 ? `${line.slice(0, 119)}…` : line;
 }
 
 /**
@@ -106,6 +117,7 @@ export function invoiceConflicts(
         quoteOther,
         otherDoc: otherDocLabel,
         sentence: `The invoice says "${quoteInvoice}"; ${otherDocLabel} says "${quoteOther}".`,
+        summary: `The invoice says "${shortQuote(quoteInvoice)}"; ${otherDocLabel} says "${shortQuote(quoteOther, quoteInvoice)}".`,
       });
     }
   }
@@ -184,7 +196,7 @@ export function decidePay(
     for (const c of conflicts) {
       reasons.push({
         tag: "compare",
-        text: c.sentence,
+        text: c.summary,
       });
     }
   }

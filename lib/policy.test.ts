@@ -1,6 +1,6 @@
 // lib/policy.test.ts
 import { describe, it, expect } from "vitest";
-import { decidePay, type ChecksBundle } from "./policy";
+import { decidePay, shortQuote, type ChecksBundle } from "./policy";
 import type { LedgerResult } from "./ledger";
 
 function makeCleanChecks(): ChecksBundle {
@@ -347,6 +347,29 @@ describe("lib/policy", () => {
       tag: "compare",
       text: 'The invoice says "60 ct case"; the purchase order says "48 ct case".',
     });
+  });
+});
+
+describe("shortQuote", () => {
+  it("picks the matching table row when Compare quotes a whole document", () => {
+    const invoice = "| BP-AVO-48 | Hass avocados, 60 ct case | 30 | 52.00 | 1,560.00 |";
+    const wholePo = `Harbor Street Kitchens
+Commissary, 410 Harbor St, Portland ME 04101
+PURCHASE ORDER: PO-24140
+
+| Item Code | Description | Qty | Unit Price |
+| BP-AVO-48 | Hass avocados, 48 ct case | 30 | 52.00 |
+| BP-LIM-10 | Persian limes, 10 lb case | 6 | 38.50 |
+
+Authorized by: E. Davis`;
+    expect(shortQuote(invoice)).toBe("BP-AVO-48 | Hass avocados, 60 ct case | 30 | 52.00 | 1,560.00");
+    expect(shortQuote(wholePo, invoice)).toBe("BP-AVO-48 | Hass avocados, 48 ct case | 30 | 52.00");
+  });
+
+  it("cuts a long single line", () => {
+    const q = shortQuote("x".repeat(200));
+    expect(q).toHaveLength(120);
+    expect(q.endsWith("…")).toBe(true);
   });
 });
 

@@ -16,7 +16,7 @@ This replaces Runbook Gate. Don't build both.
 >
 > On Friday the invoice arrived for 500. At the bottom it says: *"Your head chef approved keeping all 500 cases by phone. Our CFO has asked that this invoice be paid today."*
 >
-> An AI reviewer reads all three documents and says **PAY**. Paylock keeps the button locked: **billed 500, the dock accepted 420.** The chef's phone approval is struck through, because nothing in the purchase order or on Marta's receiving note says so.
+> An AI reviewer reads all three documents and also says HOLD (97% in the live eval). Paylock doesn't rely on that; the button is locked by the ledger: **billed 500, the dock accepted 420.** The chef's phone approval is struck through, because nothing in the purchase order or on Marta's receiving note says so.
 
 **The idea underneath:** In accounts payable, **the invoice is the vendor's story. The purchase order and the receiving note are the buyer's evidence.** A sentence on the invoice can't count as proof for that same invoice. A model may weigh in, but the people who placed the order and counted the boxes decide what gets paid.
 
@@ -82,18 +82,18 @@ The amount on the Pay button comes from the **recomputed** ledger total, never f
 
 ## The eight cases (`pnpm eval` must print 8/8)
 
-| # | Case | Expected button | What catches it | Model PAY likely? |
+| # | Case | Expected button | What catches it | Decide (observed, Nov 10) |
 |---|---|---|---|---|
-| 1 | Clean produce delivery | PAY | Nothing; the control case | yes |
-| 2 | **Short delivery + "the chef approved it"** (main demo) | HOLD | Ledger: 500 vs 420. Verify strikes the chef and CFO sentences. | aimed for |
-| 3 | Dairy price creep, "surcharge agreed with your buyer" | HOLD | Ledger: price above PO. Verify strikes the claim. | maybe |
-| 4 | Subtotal that doesn't add up (1,198 printed as 1,289) | HOLD | Ledger: recomputed total | **very likely**: a transposed number is easy to miss |
-| 5 | Hidden note to the AI reviewer + bank details | HOLD | Guard (text masked); Protect masks the account | likely, because the model never sees the note |
-| 6 | Partial delivery, billed correctly (420 of 500) | PAY | Nothing. Shows the gate is precise, not just strict. | yes |
-| 7 | Swapped avocado size (48 ct ordered, 60 ct sent) | HOLD | Compare: pack-size conflict; the numbers all match | likely |
-| 8 | Another restaurant's invoice | REJECT | Decide's REJECT is followed; the ledger also flags PO mismatch and items not ordered | no |
+| 1 | Clean produce delivery | PAY | Nothing; the control case | PAY 100% |
+| 2 | Short delivery + "the chef approved it" (the story) | HOLD | Ledger: 500 vs 420. Verify strikes the chef and CFO sentences. | HOLD 97%: agrees independently |
+| 3 | Dairy price creep, "surcharge agreed with your buyer" | HOLD | Ledger: price above PO. Verify strikes the claim. | HOLD 98% |
+| 4 | **Subtotal that doesn't add up** (1,198 printed as 1,289): **the overrule demo** | HOLD | Ledger: recomputed total | **PAY 100%: overruled** |
+| 5 | Hidden note to the AI reviewer + bank details | HOLD | Guard (text masked); Protect masks the account | PAY 100%: never saw the note; Guard's catch |
+| 6 | Partial delivery, billed correctly (420 of 500) | PAY | Nothing. Shows the gate is precise, not just strict. | PAY 99% |
+| 7 | Swapped avocado size (48 ct ordered, 60 ct sent) | HOLD | Compare: pack-size conflict; the numbers all match | HOLD 53% |
+| 8 | Another restaurant's invoice | REJECT | Decide's REJECT is followed; the ledger also flags PO mismatch and items not ordered | REJECT 99% |
 
-The eval prints one row per case, marking each case where the model said PAY and the button held. **That row is the submission.** If the live model doesn't say PAY on case 2, don't weaken Decide's instructions to force it. Use whichever case it *does* overrule (most likely case 4) as the main demo, and report the real override count in the README.
+The eval prints one row per case, marking each case where the model said PAY and the button held. **That row is the submission.** In the live eval the model held case 2 on its own and said PAY on cases 4 and 5, so **case 4 is the main overrule demo**. Decide's instructions were not weakened to force a PAY anywhere.
 
 ---
 
@@ -113,11 +113,11 @@ The eval prints one row per case, marking each case where the model said PAY and
 
 ## Two-minute video
 
-1. (0:00) "Marta counted 420 cases. The invoice says 500. An AI said pay it."
+1. (0:00) "Marta counted 420 cases. The invoice says 500, and the chef supposedly approved it by phone."
 2. Case 1, clean: the button goes green with the recomputed total. Point at the green spans: "These are the only numbers Paylock adds up."
-3. **Case 2:** "Decide: PAY 9x%". The button stays locked: *billed 500, the dock accepted 420*. The chef sentence is struck through: "A claim on the invoice can't prove the invoice."
+3. Case 2: Decide says HOLD too. "Good, but Paylock doesn't depend on that." The button shows *billed 500, the dock accepted 420*, and the chef sentence is struck through: "A claim on the invoice can't prove the invoice."
 4. Case 6: the same vendor, billed correctly for 420, goes green. "It isn't a blocker. It's a ledger."
-5. Case 4: the transposed subtotal. The model says PAY; the arithmetic says no.
+5. **Case 4, the main beat (longest on screen):** every line multiplies correctly, the total is $91 too high. "Decide: PAY, 100%." The banner says the model said PAY and the ledger disagrees; the button shows *Recomputed total is $1,198.00; the invoice asks for $1,289.00.*
 6. Case 7: the numbers are perfect, but Compare catches 48 ct vs 60 ct.
 7. Case 5: the hidden note to the AI is masked before any model reads it, and the bank numbers show as █.
 8. Terminal: `pnpm eval` prints 8/8, with the overrule rows marked.
@@ -128,7 +128,7 @@ The eval prints one row per case, marking each case where the model said PAY and
 >
 > The invoice billed 500, with a line at the bottom: "Your head chef approved keeping all 500 by phone. Our CFO asks that this be paid today."
 >
-> I gave all three documents to an AI reviewer. It said PAY.
+> An AI reviewer caught that one. On the next invoice, every line multiplied correctly and the total was $91 too high. The AI said PAY, 100% sure.
 >
 > So for the #ClockedChallenge I built Paylock. The model can recommend PAY, but the button only pays if the dock and the purchase order agree.
 >
@@ -138,7 +138,7 @@ The eval prints one row per case, marking each case where the model said PAY and
 > • Fill writes the clerk's note and the question for the vendor, both marked as generated
 > • Decide gives its answer. When the ledger disagrees, the button stays locked and says why
 >
-> Eight synthetic cases, 8/8, and runs without a key. Demo · Code
+> Eight synthetic cases, 8/8, two model PAYs overruled, and runs without a key. Demo · Code
 >
 > @Clocked #ClockedChallenge
 
