@@ -9,7 +9,7 @@ This document records all architectural decisions, reality checks, differences f
 ### 1.1 Decide Behavior on Short Deliveries (`dock-count`)
 - **Plan Hypothesis:** Case 2 (`dock-count`) was intended to test whether Decide would say `PAY` and be overruled by the software ledger.
 - **Reality Check:** In live calls against `clocked-1.0` (`/clocked/decide`), the model evaluated the three documents and independently chose **HOLD with 97% probability**. It accurately noticed the cold-chain refusal on the receiving note.
-- **Decision:** As specified in Section 5 tuning rules ("*Never tune Decide to make the model say PAY*"), we kept Decide's prompt completely neutral. Rather than artificially weakening the prompt, we let the model's true capability stand.
+- **Decision:** Following our tuning rule ("*Never tune Decide to make the model say PAY*"), we kept Decide's prompt completely neutral. Rather than artificially weakening the prompt, we let the model's true capability stand.
 
 ### 1.2 The Live Overrule Demonstrations (`bad-math` & `ai-note`)
 - **Findings:**
@@ -69,7 +69,7 @@ This document records all architectural decisions, reality checks, differences f
 
 ## 4. Verification & Reproduction Status
 
-- **Unit Tests:** `pnpm test` → 27 passing tests across 4 test suites (`clocked`, `spans`, `ledger`, `policy`).
+- **Unit Tests:** `pnpm test` → 29 passing tests across 4 test suites (`clocked`, `spans`, `ledger`, `policy`).
 - **Evaluation Runner:** `pnpm eval` → 8/8 pass in both live and replay mode.
 - **Build & Lint:** `pnpm lint && pnpm build` → 0 errors, 0 warnings.
 
