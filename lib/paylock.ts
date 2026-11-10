@@ -2,7 +2,13 @@
 import { callClocked, type ClockedMode } from "./clocked";
 import { find, mask, codePointLength } from "./spans";
 import { buildLedger, type LedgerResult } from "./ledger";
-import { decidePay, invoiceConflicts, type ChecksBundle, type PolicyDecision } from "./policy";
+import {
+  decidePay,
+  invoiceConflicts,
+  isRoutineInvoiceLine,
+  type ChecksBundle,
+  type PolicyDecision,
+} from "./policy";
 import type {
   GuardResponse,
   ProtectResponse,
@@ -429,7 +435,9 @@ export async function runPaylock(
     vendorClaims.push({
       text: claimText,
       span,
-      verdict: matchedVerify?.verdict,
+      verdict: isRoutineInvoiceLine(claimText)
+        ? "not_a_claim"
+        : matchedVerify?.verdict,
     });
   }
 

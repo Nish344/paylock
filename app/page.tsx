@@ -221,7 +221,7 @@ export default function PaylockPage() {
     }
     // Vendor claims
     for (const vc of result.vendorClaims ?? []) {
-      if (vc.span) {
+      if (vc.span && vc.verdict !== "not_a_claim") {
         const isSupported = vc.verdict === "supported";
         invoiceMarks.push({
           ...vc.span,

@@ -23,7 +23,8 @@ export type LedgerRule =
   | "over_received"
   | "line_math"
   | "subtotal_math"
-  | "total_math";
+  | "total_math"
+  | "tax";
 
 export interface LedgerFinding {
   rule: LedgerRule;
@@ -75,6 +76,16 @@ export function formatCents(cents: number): string {
 
 export function normalizeCode(code: string): string {
   return code.toUpperCase().replace(/[^A-Z0-9]/g, "");
+}
+
+/** Percent agreed on the purchase order, or null when it never mentions tax. */
+export function agreedTaxRate(poText: string): number | null {
+  if (/no\s+(?:sales\s+)?tax|tax\s*-?\s*exempt/i.test(poText)) return 0;
+  const match = poText.match(/tax[^%\n]{0,40}?(\d+(?:\.\d+)?)\s*%/i);
+  if (!match) return null;
+  const rate = Number(match[1]);
+  if (!Number.isFinite(rate) || rate < 0 || rate > 100) return null;
+  return rate;
 }
 
 interface SpanValue {
@@ -319,6 +330,37 @@ export function buildLedger(
     });
   }
 
+  // Same code on two lines: 24 and 6 each pass a dock count of 24. The sum does not.
+  const billedByCode = new Map<
+    string,
+    { desc: string; billed: number; accepted: number; indexes: number[] }
+  >();
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const key = normalizeCode(line.item_code);
+    if (!key || line.issues.includes("unreadable")) continue;
+    const group = billedByCode.get(key) ?? {
+      desc: line.description,
+      billed: 0,
+      accepted: line.accepted,
+      indexes: [],
+    };
+    group.billed += line.billed;
+    group.indexes.push(i);
+    billedByCode.set(key, group);
+  }
+  for (const group of billedByCode.values()) {
+    const oneLineAlreadyOver = group.indexes.some(
+      (i) => lines[i].billed > group.accepted
+    );
+    if (oneLineAlreadyOver || group.billed <= group.accepted) continue;
+    findings.push({
+      rule: "over_received",
+      sentence: `${group.desc}: billed ${group.billed} across ${group.indexes.length} lines, the dock accepted ${group.accepted}.`,
+    });
+    for (const i of group.indexes) lines[i].issues.push("over_received");
+  }
+
   // 5. Subtotal and Total checks
   const subtotalSpan = verifySpan(
     invoiceText,
@@ -336,7 +378,28 @@ export function buildLedger(
   const totalNum = totalSpan ? parseUsNumber(totalSpan.value) : null;
 
   const taxCents = taxNum !== null ? toCents(taxNum) : 0;
-  const payableCents = sumLinesCents + taxCents;
+  const agreedRate = agreedTaxRate(poText);
+  let payableTaxCents = taxCents;
+  if (agreedRate === null) {
+    if (taxCents > 0) {
+      findings.push({
+        rule: "tax",
+        sentence: `The invoice charges $${formatCents(taxCents)} tax, and the purchase order doesn't agree a tax.`,
+      });
+      payableTaxCents = 0;
+    }
+  } else {
+    const expectedTaxCents = Math.round((sumLinesCents * agreedRate) / 100);
+    if (Math.abs(taxCents - expectedTaxCents) > 1) {
+      findings.push({
+        rule: "tax",
+        sentence: `Sales tax is $${formatCents(taxCents)}; at the purchase order's ${agreedRate}% that is $${formatCents(expectedTaxCents)}.`,
+      });
+      payableTaxCents = expectedTaxCents;
+    }
+  }
+  const payableCents = sumLinesCents + payableTaxCents;
+  const invoiceTotalCents = sumLinesCents + taxCents;
 
   if (!subtotalSpan || subtotalNum === null) {
     findings.push({
@@ -360,10 +423,10 @@ export function buildLedger(
     });
   } else {
     const printedTotalCents = toCents(totalNum);
-    if (printedTotalCents !== payableCents) {
+    if (printedTotalCents !== invoiceTotalCents) {
       findings.push({
         rule: "total_math",
-        sentence: `Recomputed total is $${formatCents(payableCents)}; the invoice asks for $${formatCents(printedTotalCents)}.`,
+        sentence: `Recomputed total is $${formatCents(invoiceTotalCents)}; the invoice asks for $${formatCents(printedTotalCents)}.`,
       });
     }
   }

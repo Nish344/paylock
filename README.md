@@ -199,7 +199,7 @@ To run against the live Clocked API or probe custom documents:
 
 ## 9. Deliberate Boundaries & Next Steps
 
-- **Replay-Only Public Demo:** The public web deployment replays the recorded cases to prevent unauthenticated credit consumption.
+- **Public demo:** On Vercel, set `CLOCKED_API_KEY` and leave `CLOCKED_MODE` unset. Visitors can paste their own invoice, purchase order and receiving note. Each network is limited to 20 checks an hour. With no key, the site replays the eight recorded cases and refuses other text.
 - **No Direct Financial Rail:** Paylock never moves money. It prepares queued approvals for your existing ERP/accounting software (SAP, NetSuite, QuickBooks).
 - **US Number Formats:** Currently parses standard US decimal notation (`$1,234.50`). A European format parser (`1.234,50 €`) is marked in code for future upgrade.
 - **PDF Ingestion:** Text-based input is used for the hackathon demo; Clocked native PDF ingestion can be integrated directly.

@@ -6,6 +6,23 @@ import { FIXTURES } from "@/lib/fixtures";
 
 export const maxDuration = 300;
 
+// ponytail: this map lives on one server instance. Move it to a shared store
+// if one address burns credits by hitting a fresh instance each time.
+const CHECKS_PER_HOUR = 20;
+const checksByIp = new Map<string, number[]>();
+
+function overCheckLimit(ip: string): boolean {
+  const now = Date.now();
+  const recent = (checksByIp.get(ip) ?? []).filter((at) => now - at < 3_600_000);
+  if (recent.length >= CHECKS_PER_HOUR) {
+    checksByIp.set(ip, recent);
+    return true;
+  }
+  recent.push(now);
+  checksByIp.set(ip, recent);
+  return false;
+}
+
 export async function POST(req: Request) {
   let body: Record<string, unknown> | null = null;
   try {
@@ -44,6 +61,17 @@ export async function POST(req: Request) {
   }
 
   const mode = clockedMode();
+
+  if (mode !== "replay") {
+    const ip =
+      req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "local";
+    if (overCheckLimit(ip)) {
+      return NextResponse.json(
+        { error: "Too many checks from this network. Try again in an hour." },
+        { status: 429 }
+      );
+    }
+  }
 
   // In replay mode, enforce that inputs match one of the eight fixtures
   // ponytail: add auth and rate limiting before live keys on public endpoints

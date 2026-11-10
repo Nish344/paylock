@@ -1,6 +1,6 @@
 // lib/policy.test.ts
 import { describe, it, expect } from "vitest";
-import { decidePay, shortQuote, type ChecksBundle } from "./policy";
+import { decidePay, isRoutineInvoiceLine, shortQuote, type ChecksBundle } from "./policy";
 import type { LedgerResult } from "./ledger";
 
 function makeCleanChecks(): ChecksBundle {
@@ -133,6 +133,35 @@ describe("lib/policy", () => {
       tag: "verify",
       text: 'Vendor claim not backed by the PO or receiving note: "Your head chef approved keeping all 500 cases by phone on 12 Oct."',
     });
+  });
+
+  it("3b. Terms, thank-you and remit-to name do not hold; a remit-to account does", () => {
+    const checks = makeCleanChecks();
+    const ledger = makeCleanLedger();
+    checks.claimCheck = {
+      ok: true,
+      data: {
+        claims: [
+          { claim: "Terms: Net 15.", verdict: "not_stated", counted: true },
+          { claim: "Remit to Cold Spring Fisheries.", verdict: "not_stated", counted: true },
+          { claim: "Thank you for your business.", verdict: "not_stated", counted: true },
+        ],
+      },
+      credits: 2,
+      replayed: false,
+    };
+
+    expect(decidePay(checks, ledger).button).toBe("PAY");
+    expect(isRoutineInvoiceLine("Payment due upon receipt.")).toBe(true);
+    expect(isRoutineInvoiceLine("Remit to account 000123456789.")).toBe(false);
+    expect(
+      isRoutineInvoiceLine("Your head chef approved keeping all 500 cases by phone.")
+    ).toBe(false);
+
+    checks.claimCheck.data.claims = [
+      { claim: "Remit to account 000123456789.", verdict: "not_stated", counted: true },
+    ];
+    expect(decidePay(checks, ledger).button).toBe("HOLD");
   });
 
   it("4. One unsupported note sentence -> HOLD", () => {

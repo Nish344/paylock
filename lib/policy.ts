@@ -60,6 +60,18 @@ export function unsupported(claims: VerifyClaim[] = []): VerifyClaim[] {
   );
 }
 
+const ROUTINE_PART =
+  /^(?:thank you\b|remit(?:tance)?(?: payment)? to (?!account\b)|(?:payment )?terms?\s*:\s*(?:net\s+\d+(?:\s+days)?|due (?:on|upon) receipt)\b|payment due (?:on|upon) receipt\b|net\s+\d+(?:\s+days)?\.?$)/i;
+
+/** Payment terms, a thank-you, or "remit to <vendor>". A remit-to account number is not routine. */
+export function isRoutineInvoiceLine(claim: string): boolean {
+  const parts = claim
+    .split(/(?<=[.!])\s+/)
+    .map((part) => part.trim())
+    .filter(Boolean);
+  return parts.length > 0 && parts.every((part) => ROUTINE_PART.test(part));
+}
+
 export interface InvoiceConflictFormatted {
   quoteInvoice: string;
   quoteOther: string;
@@ -203,7 +215,9 @@ export function decidePay(
 
   // 5. Vendor claim Verify failures
   if (checks.claimCheck?.ok) {
-    const unbackedClaims = unsupported(checks.claimCheck.data.claims);
+    const unbackedClaims = unsupported(checks.claimCheck.data.claims).filter(
+      (c) => !isRoutineInvoiceLine(c.claim)
+    );
     for (const c of unbackedClaims) {
       reasons.push({
         tag: "verify",

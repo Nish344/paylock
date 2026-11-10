@@ -1,7 +1,7 @@
 // lib/ledger.test.ts
 import { describe, it, expect } from "vitest";
 import { getFixture } from "./fixtures";
-import { buildLedger, parseUsNumber } from "./ledger";
+import { agreedTaxRate, buildLedger, parseUsNumber } from "./ledger";
 import { find } from "./spans";
 import type { ExtractResponse, ExtractFieldItem } from "./types";
 
@@ -343,6 +343,55 @@ describe("lib/ledger", () => {
     const unreadable = res.findings.find((x) => x.rule === "unreadable");
     expect(unreadable).toBeDefined();
     expect(unreadable?.sentence).toBe("Couldn't read an invoice line (BP-TOM-25).");
+  });
+
+  function seafood(invoice: string, poExtra = "") {
+    const po = `PURCHASE ORDER: PO-9\n\n| Item Code | Description | Qty | Unit Price |\n| CSF-COD-10 | Atlantic cod | 24 | 10.00 |\n${poExtra}`;
+    const receipt = `PO Reference: PO-9\n\n| Item Code | Description | Delivered | Refused | Accepted |\n| CSF-COD-10 | Atlantic cod | 24 | 0 | 24 |\n`;
+    return buildLedger(
+      extractFixtureInvoice(invoice),
+      extractFixturePo(po),
+      extractFixtureReceipt(receipt),
+      invoice,
+      po,
+      receipt
+    );
+  }
+
+  it("9. The same item on two lines is billed as the sum, not each line", () => {
+    const invoice = `PO Reference: PO-9\n\n| Item Code | Description | Qty | Unit Price | Amount |\n| CSF-COD-10 | Atlantic cod | 24 | 10.00 | 240.00 |\n| CSF-COD-10 | Atlantic cod backorder | 6 | 10.00 | 60.00 |\n\nSubtotal: USD 300.00\nTax: 0.00\nTotal due: USD 300.00\n`;
+    const res = seafood(invoice);
+    expect(res.findings).toEqual([
+      {
+        rule: "over_received",
+        sentence: "Atlantic cod: billed 30 across 2 lines, the dock accepted 24.",
+      },
+    ]);
+  });
+
+  it("10. Tax that matches the rate on the purchase order is payable", () => {
+    const invoice = `PO Reference: PO-9\n\n| Item Code | Description | Qty | Unit Price | Amount |\n| CSF-COD-10 | Atlantic cod | 24 | 10.00 | 240.00 |\n\nSubtotal: USD 240.00\nTax: 13.20\nTotal due: USD 253.20\n`;
+    const res = seafood(invoice, "Sales tax 5.5% applies.");
+    expect(res.findings).toEqual([]);
+    expect(res.payableCents).toBe(25_320);
+  });
+
+  it("11. A padded tax line is held at the purchase order's rate", () => {
+    const invoice = `PO Reference: PO-9\n\n| Item Code | Description | Qty | Unit Price | Amount |\n| CSF-COD-10 | Atlantic cod | 24 | 10.00 | 240.00 |\n\nSubtotal: USD 240.00\nTax: 40.00\nTotal due: USD 280.00\n`;
+    const res = seafood(invoice, "Sales tax 5.5% applies.");
+    expect(res.findings.map((f) => f.rule)).toEqual(["tax"]);
+    expect(res.findings[0].sentence).toBe(
+      "Sales tax is $40.00; at the purchase order's 5.5% that is $13.20."
+    );
+    expect(res.payableCents).toBe(25_320);
+  });
+
+  it("12. Tax with no rate on the purchase order is not payable", () => {
+    const invoice = `PO Reference: PO-9\n\n| Item Code | Description | Qty | Unit Price | Amount |\n| CSF-COD-10 | Atlantic cod | 24 | 10.00 | 240.00 |\n\nSubtotal: USD 240.00\nTax: 13.20\nTotal due: USD 253.20\n`;
+    const res = seafood(invoice);
+    expect(res.findings.map((f) => f.rule)).toEqual(["tax"]);
+    expect(res.payableCents).toBe(24_000);
+    expect(agreedTaxRate("Tax exempt.")).toBe(0);
   });
 
   it("8. Number parsing handles accepted and refused formats correctly", () => {
