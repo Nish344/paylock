@@ -22,7 +22,7 @@ function extractFixtureInvoice(text: string): ExtractResponse {
 
   // Lines
   const lineRegex =
-    /\|\s*([A-Z0-9-]+)\s*\|\s*([^|]+?)\s*\|\s*(\d+)\s*\|\s*([\d,.]+)\s*\|\s*([\d,.]+)\s*\|/g;
+    /\|\s*([A-Z0-9-]+)\s*\|\s*([^|]+?)\s*\|\s*([\d.]+)\s*\|\s*([\d,.]+)\s*\|\s*([\d,.]+)\s*\|/g;
   const items: ExtractFieldItem[] = [];
   let match: RegExpExecArray | null;
 
@@ -127,7 +127,7 @@ function extractFixturePo(text: string): ExtractResponse {
   }
 
   const lineRegex =
-    /\|\s*([A-Z0-9-]+)\s*\|\s*([^|]+?)\s*\|\s*(\d+)\s*\|\s*([\d,.]+)\s*\|/g;
+    /\|\s*([A-Z0-9-]+)\s*\|\s*([^|]+?)\s*\|\s*([\d.]+)\s*\|\s*([\d,.]+)\s*\|/g;
   const items: ExtractFieldItem[] = [];
   let match: RegExpExecArray | null;
 
@@ -191,7 +191,7 @@ function extractFixtureReceipt(text: string): ExtractResponse {
 
   // | Item Code | Description | Delivered | Refused | Accepted |
   const lineRegex =
-    /\|\s*([A-Z0-9-]+)\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|\s*(\d+)\s*\|/g;
+    /\|\s*([A-Z0-9-]+)\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|\s*([\d.]+)\s*\|/g;
   const items: ExtractFieldItem[] = [];
   let match: RegExpExecArray | null;
 
@@ -366,6 +366,10 @@ describe("lib/ledger", () => {
         rule: "over_received",
         sentence: "Atlantic cod: billed 30 across 2 lines, the dock accepted 24.",
       },
+      {
+        rule: "over_order",
+        sentence: "Atlantic cod: billed 30 across 2 lines, the PO agreed 24.",
+      },
     ]);
   });
 
@@ -399,8 +403,94 @@ describe("lib/ledger", () => {
     expect(parseUsNumber("USD 6,680.00")).toBe(6680.0);
     expect(parseUsNumber("$11.90")).toBe(11.9);
     expect(parseUsNumber("420")).toBe(420);
+    expect(parseUsNumber("12.5 lb")).toBe(12.5);
+    expect(parseUsNumber("$41.63")).toBe(41.63);
     expect(parseUsNumber("1.240,50")).toBeNull();
     expect(parseUsNumber("1240,50")).toBeNull();
+    expect(parseUsNumber("12 (80 refused)")).toBeNull();
+  });
+
+  it("13. PO quantity checked: ordered 20, dock accepted 50, billed 50 -> over_order finding", () => {
+    const po = `PURCHASE ORDER: PO-9\n\n| Item Code | Description | Qty | Unit Price |\n| CSF-COD-10 | Atlantic cod | 20 | 10.00 |\n`;
+    const receipt = `PO Reference: PO-9\n\n| Item Code | Description | Delivered | Refused | Accepted |\n| CSF-COD-10 | Atlantic cod | 50 | 0 | 50 |\n`;
+    const invoice = `PO Reference: PO-9\n\n| Item Code | Description | Qty | Unit Price | Amount |\n| CSF-COD-10 | Atlantic cod | 50 | 10.00 | 500.00 |\n\nSubtotal: USD 500.00\nTax: 0.00\nTotal due: USD 500.00\n`;
+    const res = buildLedger(
+      extractFixtureInvoice(invoice),
+      extractFixturePo(po),
+      extractFixtureReceipt(receipt),
+      invoice,
+      po,
+      receipt
+    );
+    expect(res.findings).toEqual([
+      {
+        rule: "over_order",
+        sentence: "Atlantic cod: billed 50, the PO agreed 20.",
+      },
+    ]);
+  });
+
+  it("14. Fractional quantities (12.5 lb x $3.33) round to cents without false line_math hold", () => {
+    const po = `PURCHASE ORDER: PO-9\n\n| Item Code | Description | Qty | Unit Price |\n| CL-BEEF-LB | Ground beef, lb | 20 | 3.33 |\n`;
+    const receipt = `PO Reference: PO-9\n\n| Item Code | Description | Delivered | Refused | Accepted |\n| CL-BEEF-LB | Ground beef, lb | 12.5 | 0 | 12.5 |\n`;
+    const invoice = `PO Reference: PO-9\n\n| Item Code | Description | Qty | Unit Price | Amount |\n| CL-BEEF-LB | Ground beef, lb | 12.5 | 3.33 | 41.63 |\n\nSubtotal: USD 41.63\nTax: 0.00\nTotal due: USD 41.63\n`;
+    const res = buildLedger(
+      extractFixtureInvoice(invoice),
+      extractFixturePo(po),
+      extractFixtureReceipt(receipt),
+      invoice,
+      po,
+      receipt
+    );
+    expect(res.findings).toEqual([]);
+    expect(res.payableCents).toBe(4163);
+  });
+
+  it("15. Tax regex rejects unrelated percentages", () => {
+    expect(agreedTaxRate("Price excludes tax. Volume rebate 5%")).toBeNull();
+    expect(agreedTaxRate("Sales tax: 8.25%")).toBe(8.25);
+    expect(agreedTaxRate("8.25% sales tax")).toBe(8.25);
+    expect(agreedTaxRate("Price excludes tax. 5% tax applies.")).toBe(5);
+  });
+
+  it("16. Dock receiving note math mismatch (delivered - refused != accepted) triggers line_math", () => {
+    const po = `PURCHASE ORDER: PO-9\n\n| Item Code | Description | Qty | Unit Price |\n| CSF-COD-10 | Atlantic cod | 500 | 10.00 |\n`;
+    const receipt = `PO Reference: PO-9\n\n| Item Code | Description | Delivered | Refused | Accepted |\n| CSF-COD-10 | Atlantic cod | 500 | 80 | 500 |\n`;
+    const invoice = `PO Reference: PO-9\n\n| Item Code | Description | Qty | Unit Price | Amount |\n| CSF-COD-10 | Atlantic cod | 500 | 10.00 | 5000.00 |\n\nSubtotal: USD 5000.00\nTax: 0.00\nTotal due: USD 5000.00\n`;
+    const res = buildLedger(
+      extractFixtureInvoice(invoice),
+      extractFixturePo(po),
+      extractFixtureReceipt(receipt),
+      invoice,
+      po,
+      receipt
+    );
+    expect(res.findings.some((f) => f.rule === "line_math")).toBe(true);
+    expect(
+      res.findings.some((f) =>
+        f.sentence.includes("delivered 500 - refused 80 = 420, but accepted is listed as 500")
+      )
+    ).toBe(true);
+  });
+
+  it("17. PO line arithmetic mismatch (qty x price != amount) triggers line_math", () => {
+    const po = `PURCHASE ORDER: PO-9\n\n| Item Code | Description | Qty | Unit Price | Amount |\n| CSF-COD-10 | Atlantic cod | 10 | 15.00 | 200.00 |\n`;
+    const receipt = `PO Reference: PO-9\n\n| Item Code | Description | Delivered | Refused | Accepted |\n| CSF-COD-10 | Atlantic cod | 10 | 0 | 10 |\n`;
+    const invoice = `PO Reference: PO-9\n\n| Item Code | Description | Qty | Unit Price | Amount |\n| CSF-COD-10 | Atlantic cod | 10 | 15.00 | 150.00 |\n\nSubtotal: USD 150.00\nTax: 0.00\nTotal due: USD 150.00\n`;
+    const res = buildLedger(
+      extractFixtureInvoice(invoice),
+      extractFixturePo(po),
+      extractFixtureReceipt(receipt),
+      invoice,
+      po,
+      receipt
+    );
+    expect(res.findings.some((f) => f.rule === "line_math")).toBe(true);
+    expect(
+      res.findings.some((f) =>
+        f.sentence.includes("10 × $15.00 = $150.00, but PO says $200.00")
+      )
+    ).toBe(true);
   });
 });
 

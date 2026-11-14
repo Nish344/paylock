@@ -70,8 +70,10 @@ The button's final state is the strictest of Decide's recommendation and the led
 | Rule | Trigger | Button Verdict |
 |---|---|---|
 | Dock Count Shortage | Billed quantity > accepted count | HOLD |
+| PO Quantity Over-order | Billed quantity > PO agreed quantity | HOLD |
 | Price Creep | Invoice unit price > PO agreed price | HOLD |
-| Arithmetic Error | Line math, subtotal, or total does not compute | HOLD |
+| Arithmetic Error | Line math, subtotal, total, PO amount, or dock note math does not compute | HOLD |
+| Bank Redirection Fraud | Bank change or sensitive account claim unbacked by PO | HOLD |
 | Catalog Mismatch | Billed item code not on PO, or PO number mismatch | HOLD / REJECT |
 | Unbacked Claim | Vendor claim unsupported by PO / dock note | HOLD |
 | Unsupported Note | Generated clerk note sentence not backed by evidence | HOLD |

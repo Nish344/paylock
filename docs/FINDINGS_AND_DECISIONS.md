@@ -69,7 +69,44 @@ This document records all architectural decisions, reality checks, differences f
 
 ## 4. Verification & Reproduction Status
 
-- **Unit Tests:** `pnpm test` → 29 passing tests across 4 test suites (`clocked`, `spans`, `ledger`, `policy`).
+- **Unit Tests:** `pnpm test` → 40 passing tests across 4 test suites (`clocked`, `spans`, `ledger`, `policy`).
 - **Evaluation Runner:** `pnpm eval` → 8/8 pass in both live and replay mode.
 - **Build & Lint:** `pnpm lint && pnpm build` → 0 errors, 0 warnings.
+
+---
+
+## 5. Edge Case Hardening & Pre-Judging Security Hardening
+
+To ensure complete resilience under adversarial judging and rigorous edge cases, the following critical protections were implemented:
+
+### 5.1 PO Quantity Invariant (`over_order`)
+- **Vulnerability:** Previously, Paylock verified `billed <= accepted` (dock match) and `billed_price <= po_price`, but never cross-checked `billed <= ordered` on the PO. If ordered was 20, vendor delivered 50, dock accepted 50, and invoice billed 50, it would have paid.
+- **Fix:** Added `over_order` rule to `lib/ledger.ts`. Checked for both single-line (`billed > ordered`) and multi-line aggregations (`group.billed > group.ordered`) in `billedByCode`.
+
+### 5.2 Fractional Quantities & Cent Rounding
+- **Vulnerability:** For items sold by fractional units or weight (e.g. 12.5 lb at $3.33/lb), `12.5 * 333 = 4162.5` cents. Without integer rounding, this floating point value conflicted with the printed cents ($41.63 = 4163 cents), yielding a false HOLD: `"12.5 × $3.33 = $41.63, the invoice says $41.63"`.
+- **Fix:** Rounded line amounts in integer cents using `Math.round(billed * invPriceCents)`.
+
+### 5.3 Default Confidence
+- **Vulnerability:** In `decidePay()`, missing confidence or probabilities previously defaulted to `1` (100% confidence), potentially allowing unconfident model predictions to auto-approve.
+- **Fix:** Defaulted missing confidence to `0` so unconfident or unspecified model decisions trigger HOLD safely.
+
+### 5.4 Accuracy of Guard Reason Phrasing
+- **Correction:** Extract runs in Phase 1 on the raw document to extract spans and fields, whereas Compare, Decide, and Fill run in later phases on `cleanInvoice`. The previous text claimed instructions "were removed before any model read the invoice", which was factually inaccurate. Updated to: `"They were removed before Compare, Decide, or Fill read the invoice."`
+
+### 5.5 Bank-Change Fraud Hardening in `isRoutineInvoiceLine`
+- **Vulnerability:** The previous regex lacked end anchors on the remittance branch, allowing `"Remit to X, new bank effective today."` to be treated as routine boilerplate, dropping the unbacked claim from Verify. Protect also redacts account numbers from Decide, creating a path for bank-diversion fraud to slip through to PAY.
+- **Fix:** Flagged sensitive financial keywords (`bank`, `account`, `routing`, `iban`, `swift`, `wire`, `deposit`, `change`, `effective`, `\d{4,}`, `█`) as strictly non-routine. Fully anchored routine patterns for thank-yous, payment terms, and simple remit vendor names.
+
+### 5.6 Strict Tax Rate Matching in `agreedTaxRate`
+- **Vulnerability:** The previous tax regex matched any percentage within 40 characters of the word "tax", causing phrases like `"Price excludes tax. Volume rebate 5%"` to erroneously adopt 5% as the agreed tax rate.
+- **Fix:** Replaced loose distance matching with precise structural patterns (`(?:sales )?tax (?:rate)? [:=]? \d+%` or `\d+% (?:sales )?tax`) and explicit tax-exempt checking.
+
+### 5.7 Strict Number Parsing in `parseUsNumber`
+- **Vulnerability:** `parseUsNumber` stripped all non-digit/dot characters prior to validating format, converting dock refusal notes like `"12 (80 refused)"` into `1280`, which inflated dock counts and disabled shortages.
+- **Fix:** Required input strings to match a valid numeric pattern with optional currency prefix and units before stripping characters. Notes like `"12 (80 refused)"` now return `null` and trigger `unreadable` findings.
+
+### 5.8 Receiving Note & PO Table Arithmetic Cross-Checks
+- **Vulnerability:** Exact spans prove that a printed number exists, but not that Extract selected the correct column (e.g. delivered vs accepted).
+- **Fix:** Added table arithmetic cross-checks: verified `delivered - refused === accepted` on receiving notes and `qty × unit_price === amount` on purchase orders. If Extract extracts a value that disagrees with `delivered - refused`, a line math finding is generated.
 

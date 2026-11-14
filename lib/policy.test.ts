@@ -153,7 +153,21 @@ describe("lib/policy", () => {
 
     expect(decidePay(checks, ledger).button).toBe("PAY");
     expect(isRoutineInvoiceLine("Payment due upon receipt.")).toBe(true);
+    expect(isRoutineInvoiceLine("Remit to Acme Corp.")).toBe(true);
+    expect(isRoutineInvoiceLine("Thank you for your business.")).toBe(true);
+    expect(isRoutineInvoiceLine("Payment terms: Net 30.")).toBe(true);
     expect(isRoutineInvoiceLine("Remit to account 000123456789.")).toBe(false);
+    expect(isRoutineInvoiceLine("Remit to X, new bank effective today.")).toBe(false);
+    expect(
+      isRoutineInvoiceLine(
+        "Remit to Cold Spring Fisheries, new bank effective today."
+      )
+    ).toBe(false);
+    expect(
+      isRoutineInvoiceLine(
+        "Remit to account ████████████, routing █████████."
+      )
+    ).toBe(false);
     expect(
       isRoutineInvoiceLine("Your head chef approved keeping all 500 cases by phone.")
     ).toBe(false);
@@ -314,7 +328,7 @@ describe("lib/policy", () => {
     expect(decision.overruled).toBe(true);
     expect(decision.reasons[0]).toEqual({
       tag: "guard",
-      text: "The invoice contains instructions aimed at an automated reviewer (instruction override). They were removed before any model read the invoice.",
+      text: "The invoice contains instructions aimed at an automated reviewer (instruction override). They were removed before Compare, Decide, or Fill read the invoice.",
     });
   });
 
@@ -376,6 +390,30 @@ describe("lib/policy", () => {
       tag: "compare",
       text: 'The invoice says "60 ct case"; the purchase order says "48 ct case".',
     });
+  });
+
+  it("10. Missing confidence defaults to 0% and holds", () => {
+    const checks = makeCleanChecks();
+    checks.decide = {
+      ok: true,
+      data: {
+        answers: {
+          recommendation: {
+            choice: "PAY",
+            // missing confidence and probabilities
+          },
+        },
+      },
+      credits: 1,
+      replayed: false,
+    };
+    const decision = decidePay(checks, makeCleanLedger());
+    expect(decision.button).toBe("HOLD");
+    expect(decision.overruled).toBe(true);
+    expect(decision.modelRecommendation?.probability).toBe(0);
+    expect(decision.reasons.some((r) => r.text.includes("only 0% sure"))).toBe(
+      true
+    );
   });
 });
 

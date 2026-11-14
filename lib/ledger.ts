@@ -19,6 +19,7 @@ export type LedgerRule =
   | "po_mismatch"
   | "unreadable"
   | "not_ordered"
+  | "over_order"
   | "over_price"
   | "over_received"
   | "line_math"
@@ -46,6 +47,8 @@ export interface LedgerResult {
 export function parseUsNumber(val: string): number | null {
   if (typeof val !== "string") return null;
   const trimmed = val.trim();
+  if (!trimmed) return null;
+
   // European format uses comma as decimal separator: e.g. "1.240,50" or "10,50"
   if (/,\d{1,2}$/.test(trimmed)) {
     return null;
@@ -54,13 +57,27 @@ export function parseUsNumber(val: string): number | null {
   if (/\.\d{3},/.test(trimmed)) {
     return null;
   }
-  // Strip currency and symbols, leaving digits, minus, dot
-  const stripped = trimmed.replace(/[^0-9.-]/g, "");
-  if (!/^-?\d+(?:\.\d+)?$/.test(stripped)) {
+
+  // A valid US number field must be a coherent numeric expression.
+  // Optional currency prefix, optional minus/parens, digits with optional commas/decimal, optional unit/percent suffix.
+  // Strings like "12 (80 refused)" or "1280 (damaged)" must be rejected.
+  const validPattern =
+    /^(?:[-+]|\()?\s*(?:USD|\$)?\s*(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?\s*(?:\))?\s*(?:ea|each|lbs?|kg|cases?|box(?:es)?|packs?|units?|hrs?|hours?|%)?$/i;
+
+  if (!validPattern.test(trimmed)) {
+    return null;
+  }
+
+  const isNegative = trimmed.startsWith("-") || /^\(.*\)$/.test(trimmed);
+
+  // Strip currency, units, parens, commas, symbols, leaving digits and dot
+  const stripped = trimmed.replace(/[^0-9.]/g, "");
+  if (!/^\d+(?:\.\d+)?$/.test(stripped)) {
     return null;
   }
   const num = parseFloat(stripped);
-  return isNaN(num) ? null : num;
+  if (isNaN(num)) return null;
+  return isNegative ? -num : num;
 }
 
 export function toCents(dollars: number): number {
@@ -80,12 +97,46 @@ export function normalizeCode(code: string): string {
 
 /** Percent agreed on the purchase order, or null when it never mentions tax. */
 export function agreedTaxRate(poText: string): number | null {
-  if (/no\s+(?:sales\s+)?tax|tax\s*-?\s*exempt/i.test(poText)) return 0;
-  const match = poText.match(/tax[^%\n]{0,40}?(\d+(?:\.\d+)?)\s*%/i);
+  if (
+    /\b(?:no\s+(?:sales\s+)?tax|tax\s*-?\s*exempt(?:ion)?|zero\s+(?:sales\s+)?tax|0%\s+tax)\b/i.test(
+      poText
+    )
+  ) {
+    return 0;
+  }
+  // Pattern 1: "tax: 5%", "sales tax rate: 5%", "tax @ 5%", "tax of 5%", "tax (5%)", "tax 5%"
+  const afterMatch = poText.match(
+    /\b(?:sales\s+)?tax(?:\s+rate)?\s*(?:[:=@]|\bat\b|\bof\b|\()?\s*(\d+(?:\.\d+)?)\s*%/i
+  );
+  // Pattern 2: "5% sales tax", "5% tax"
+  const beforeMatch = poText.match(
+    /(\d+(?:\.\d+)?)\s*%\s*(?:sales\s+)?tax\b/i
+  );
+
+  const match = afterMatch || beforeMatch;
   if (!match) return null;
   const rate = Number(match[1]);
   if (!Number.isFinite(rate) || rate < 0 || rate > 100) return null;
   return rate;
+}
+
+export function parseMarkdownTableRows(text: string): Array<string[]> {
+  const lines = text.split("\n");
+  const rows: Array<string[]> = [];
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed.startsWith("|") || !trimmed.endsWith("|")) continue;
+    // Skip separator lines like |---|---|
+    if (/^\|[\s\-:|]+\|$/.test(trimmed)) continue;
+    const cells = trimmed
+      .slice(1, -1)
+      .split("|")
+      .map((c) => c.trim());
+    if (cells.length >= 2) {
+      rows.push(cells);
+    }
+  }
+  return rows;
 }
 
 interface SpanValue {
@@ -150,6 +201,87 @@ export function buildLedger(
     }
   }
 
+  // 1b. Receiving note and PO internal arithmetic cross-checks
+  const rnRows = parseMarkdownTableRows(receiptText);
+  const rnTableAccepted = new Map<string, number>();
+  if (rnRows.length > 1) {
+    const header = rnRows[0];
+    const colCode = header.findIndex((c) => /item\s*code|code/i.test(c));
+    const colDelivered = header.findIndex((c) =>
+      /delivered|received/i.test(c)
+    );
+    const colRefused = header.findIndex((c) =>
+      /refused|returned|damaged/i.test(c)
+    );
+    const colAccepted = header.findIndex((c) => /accepted/i.test(c));
+
+    if (
+      colCode !== -1 &&
+      colDelivered !== -1 &&
+      colRefused !== -1 &&
+      colAccepted !== -1
+    ) {
+      for (let i = 1; i < rnRows.length; i++) {
+        const row = rnRows[i];
+        const code = row[colCode] || `row ${i}`;
+        const norm = normalizeCode(code);
+        const del = parseUsNumber(row[colDelivered]);
+        const ref = parseUsNumber(row[colRefused]);
+        const acc = parseUsNumber(row[colAccepted]);
+
+        if (del !== null && ref !== null && acc !== null) {
+          const expected = del - ref;
+          if (acc !== expected) {
+            findings.push({
+              rule: "line_math",
+              sentence: `Receiving note for ${code}: delivered ${del} - refused ${ref} = ${expected}, but accepted is listed as ${acc}.`,
+            });
+          }
+          if (norm) {
+            rnTableAccepted.set(norm, expected);
+          }
+        }
+      }
+    }
+  }
+
+  const poRows = parseMarkdownTableRows(poText);
+  if (poRows.length > 1) {
+    const header = poRows[0];
+    const colCode = header.findIndex((c) => /item\s*code|code/i.test(c));
+    const colQty = header.findIndex((c) => /qty|quantity/i.test(c));
+    const colPrice = header.findIndex((c) => /unit\s*price|price/i.test(c));
+    const colAmt = header.findIndex((c) =>
+      /amount|line\s*total|total/i.test(c)
+    );
+
+    if (
+      colCode !== -1 &&
+      colQty !== -1 &&
+      colPrice !== -1 &&
+      colAmt !== -1
+    ) {
+      for (let i = 1; i < poRows.length; i++) {
+        const row = poRows[i];
+        const code = row[colCode] || `row ${i}`;
+        const qty = parseUsNumber(row[colQty]);
+        const price = parseUsNumber(row[colPrice]);
+        const amt = parseUsNumber(row[colAmt]);
+
+        if (qty !== null && price !== null && amt !== null) {
+          const expectedAmtCents = Math.round(qty * toCents(price));
+          const printedAmtCents = toCents(amt);
+          if (expectedAmtCents !== printedAmtCents) {
+            findings.push({
+              rule: "line_math",
+              sentence: `Purchase order line math error for ${code}: ${qty} × $${price.toFixed(2)} = $${formatCents(expectedAmtCents)}, but PO says $${formatCents(printedAmtCents)}.`,
+            });
+          }
+        }
+      }
+    }
+  }
+
   // 2. Parse PO items
   interface PoItem {
     code: string;
@@ -203,6 +335,18 @@ export function buildLedger(
     const accNum = accSpan ? parseUsNumber(accSpan.value) : null;
 
     if (normCode) {
+      const expectedAcc = rnTableAccepted.get(normCode);
+      if (
+        expectedAcc !== undefined &&
+        accNum !== null &&
+        accNum !== expectedAcc
+      ) {
+        findings.push({
+          rule: "line_math",
+          sentence: `Extracted dock count (${accNum}) does not match receiving note calculation (${expectedAcc}) for ${code || normCode}.`,
+        });
+      }
+
       const list = receiptItems.get(normCode) ?? [];
       list.push({
         accepted: accNum ?? 0,
@@ -258,7 +402,7 @@ export function buildLedger(
     const billed = billedNum ?? 0;
     const invPriceCents = priceNum !== null ? toCents(priceNum) : 0;
     const printedAmtCents = amtNum !== null ? toCents(amtNum) : 0;
-    const recomputedAmtCents = billed * invPriceCents;
+    const recomputedAmtCents = Math.round(billed * invPriceCents);
     sumLinesCents += recomputedAmtCents;
 
     if (qtySpan) used.invoice.push(qtySpan.span);
@@ -281,6 +425,14 @@ export function buildLedger(
       poPriceCents = poMatch.unitPriceCents;
       if (poMatch.priceSpan) used.po.push(poMatch.priceSpan);
       if (poMatch.qtySpan) used.po.push(poMatch.qtySpan);
+
+      if (billed > ordered) {
+        findings.push({
+          rule: "over_order",
+          sentence: `${desc}: billed ${billed}, the PO agreed ${ordered}.`,
+        });
+        issues.push("over_order");
+      }
 
       if (invPriceCents > poPriceCents) {
         findings.push({
@@ -333,7 +485,13 @@ export function buildLedger(
   // Same code on two lines: 24 and 6 each pass a dock count of 24. The sum does not.
   const billedByCode = new Map<
     string,
-    { desc: string; billed: number; accepted: number; indexes: number[] }
+    {
+      desc: string;
+      billed: number;
+      accepted: number;
+      ordered: number;
+      indexes: number[];
+    }
   >();
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
@@ -343,6 +501,7 @@ export function buildLedger(
       desc: line.description,
       billed: 0,
       accepted: line.accepted,
+      ordered: line.ordered,
       indexes: [],
     };
     group.billed += line.billed;
@@ -350,15 +509,27 @@ export function buildLedger(
     billedByCode.set(key, group);
   }
   for (const group of billedByCode.values()) {
-    const oneLineAlreadyOver = group.indexes.some(
+    const oneLineAlreadyOverReceived = group.indexes.some(
       (i) => lines[i].billed > group.accepted
     );
-    if (oneLineAlreadyOver || group.billed <= group.accepted) continue;
-    findings.push({
-      rule: "over_received",
-      sentence: `${group.desc}: billed ${group.billed} across ${group.indexes.length} lines, the dock accepted ${group.accepted}.`,
-    });
-    for (const i of group.indexes) lines[i].issues.push("over_received");
+    if (!oneLineAlreadyOverReceived && group.billed > group.accepted) {
+      findings.push({
+        rule: "over_received",
+        sentence: `${group.desc}: billed ${group.billed} across ${group.indexes.length} lines, the dock accepted ${group.accepted}.`,
+      });
+      for (const i of group.indexes) lines[i].issues.push("over_received");
+    }
+
+    const oneLineAlreadyOverOrder = group.indexes.some(
+      (i) => lines[i].billed > group.ordered
+    );
+    if (!oneLineAlreadyOverOrder && group.billed > group.ordered) {
+      findings.push({
+        rule: "over_order",
+        sentence: `${group.desc}: billed ${group.billed} across ${group.indexes.length} lines, the PO agreed ${group.ordered}.`,
+      });
+      for (const i of group.indexes) lines[i].issues.push("over_order");
+    }
   }
 
   // 5. Subtotal and Total checks

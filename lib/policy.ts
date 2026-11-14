@@ -60,16 +60,28 @@ export function unsupported(claims: VerifyClaim[] = []): VerifyClaim[] {
   );
 }
 
-const ROUTINE_PART =
-  /^(?:thank you\b|remit(?:tance)?(?: payment)? to (?!account\b)|(?:payment )?terms?\s*:\s*(?:net\s+\d+(?:\s+days)?|due (?:on|upon) receipt)\b|payment due (?:on|upon) receipt\b|net\s+\d+(?:\s+days)?\.?$)/i;
+const SENSITIVE_KEYWORDS =
+  /\b(?:bank|account|routing|iban|swift|bic|wire|deposit|transit|sort\s*code|aba|change|changed|effective|switch|redirect|notice|attention|new\s+bank)\b|[0-9]{4,}|[█■]/i;
 
-/** Payment terms, a thank-you, or "remit to <vendor>". A remit-to account number is not routine. */
+const ROUTINE_PATTERNS = [
+  /^(?:thank\s+you(?:\s+for\s+your\s+(?:business|order))?|thanks)\.?$/i,
+  /^(?:(?:(?:payment\s+)?terms?\s*:\s*)?(?:net\s+\d{1,3}(?:\s+days)?|due\s+(?:on|upon)\s+receipt)|payment\s+due\s+(?:on|upon)\s+receipt)\.?$/i,
+  /^(?:please\s+)?remit(?:tance)?(?:\s+payment)?\s+to\s+[A-Za-z0-9&.,' -]+$/i,
+];
+
+/** Payment terms, a thank-you, or "remit to <vendor>". A remit-to account number, bank details, or change notice is NOT routine. */
 export function isRoutineInvoiceLine(claim: string): boolean {
+  if (SENSITIVE_KEYWORDS.test(claim)) {
+    return false;
+  }
   const parts = claim
     .split(/(?<=[.!])\s+/)
     .map((part) => part.trim())
     .filter(Boolean);
-  return parts.length > 0 && parts.every((part) => ROUTINE_PART.test(part));
+  return (
+    parts.length > 0 &&
+    parts.every((part) => ROUTINE_PATTERNS.some((pat) => pat.test(part)))
+  );
 }
 
 export interface InvoiceConflictFormatted {
@@ -197,7 +209,7 @@ export function decidePay(
     if (guardData.verdict !== "benign") {
       reasons.push({
         tag: "guard",
-        text: `The invoice contains instructions aimed at an automated reviewer (${guardData.category || "instruction override"}). They were removed before any model read the invoice.`,
+        text: `The invoice contains instructions aimed at an automated reviewer (${guardData.category || "instruction override"}). They were removed before Compare, Decide, or Fill read the invoice.`,
       });
     }
   }
@@ -248,7 +260,7 @@ export function decidePay(
   if (checks.decide?.ok) {
     const rec = checks.decide.data.answers?.recommendation;
     if (rec?.choice) {
-      const prob = rec.probabilities?.[rec.choice] ?? rec.confidence ?? 1;
+      const prob = rec.probabilities?.[rec.choice] ?? rec.confidence ?? 0;
       modelRecommendation = {
         choice: rec.choice.toUpperCase(),
         probability: prob,
